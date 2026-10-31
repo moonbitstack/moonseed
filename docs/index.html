@@ -373,6 +373,19 @@ body[data-lang="zh"] .wm{ letter-spacing:.03em; padding:.18em 0 }
 .sec__title{
   font-family:var(--serif); font-weight:500; font-size:26px; letter-spacing:.14em;
 }
+/* 中文：章次改用汉字，作小朱印一格 */
+body[data-lang="zh"] .sec__no{
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:var(--serif); font-size:14px; letter-spacing:0; line-height:1;
+  width:24px; height:24px;
+  color:#9E4030;
+  box-shadow:inset 0 0 0 .5px rgba(158,64,48,.52), 0 1px 0 rgba(48,68,60,.05);
+  background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,242,240,.12));
+}
+/* 中文：正文首行缩进二字 */
+body[data-lang="zh"] .prose{ text-indent:2em }
+body[data-lang="zh"] .prose em{ text-indent:0 }
+
 .sec__note{
   margin-left:auto; max-width:26em;
   font-size:12px; line-height:1.95; color:var(--ink-3); text-align:right;
@@ -721,7 +734,7 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="source" style="margin-top:56px">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no">01</span>
+      <span class="sec__no" data-zh="一">01</span>
       <h2 class="sec__title" data-zh="来源">Source</h2>
       <p class="sec__note" data-zh="一法而已，填满缓冲；字节所自，由调用方定。">One method, fills the buffer. Who fills it is the caller's business.</p>
     </div>
@@ -765,7 +778,7 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="start">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no">02</span>
+      <span class="sec__no" data-zh="二">02</span>
       <h2 class="sec__title" data-zh="起笔">Start</h2>
       <p class="sec__note" data-zh="三行足矣。无初始化，无全局状态，无须先造发生器。">Three lines. No init, no global state, no generator to construct first.</p>
     </div>
@@ -811,7 +824,7 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="sample">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no">03</span>
+      <span class="sec__no" data-zh="三">03</span>
       <h2 class="sec__title" data-zh="取样">Sampling</h2>
       <p class="sec__note" data-zh="用拒绝法，不用取模。因取模则小者偏多，故此函数舍之。">Rejection, not modulo. Modulo favours the small values; not doing that is why this function exists.</p>
     </div>
@@ -872,7 +885,7 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="api">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no">04</span>
+      <span class="sec__no" data-zh="四">04</span>
       <h2 class="sec__title" data-zh="接口">API</h2>
       <p class="sec__note" data-zh="全部公开项，按包分列，无一遗漏。">Every public item, package by package. Nothing left out.</p>
     </div>
@@ -881,7 +894,7 @@ body[data-lang="zh"] .lim b::after{
       <span class="face__tag">cobalt · marking</span>
       <div class="api">
         <!-- api:begin -->
-        <div class="api__grp"><span>moonbitstack/moonseed</span><i>5 functions · 1 trait · 1 type · 1 error</i></div>
+        <div class="api__grp"><span>moonbitstack/moonseed</span><i data-zh="函数五 · 契约一 · 类型一 · 错误一">5 functions · 1 trait · 1 type · 1 error</i></div>
         <div class="api__rows">
         <div class="api__row" data-item="bytes">
           <div class="api__sig">pub fn[S : Source] bytes(n : Int32, source : S) -&gt; Bytes raise Unavailable</div>
@@ -916,7 +929,7 @@ body[data-lang="zh"] .lim b::after{
           <div class="api__g" data-zh="Platform 平台无源；Exhausted 回放已尽；Failed 自定来源之败，缘由原样陈于调用方。具 Eq、Show、Debug，故可比、可印、可记。">Platform: no source; Exhausted: the replay is spent; Failed: your source failed, and its reason reaches the caller unchanged. Eq, Show and Debug come with it.</div>
         </div>
         </div>
-        <div class="api__grp"><span>moonbitstack/moonseed/system</span><i>1 value · 2 types</i></div>
+        <div class="api__grp"><span>moonbitstack/moonseed/system</span><i data-zh="值一 · 类型二">1 value · 2 types</i></div>
         <div class="api__rows">
         <div class="api__row" data-item="source">
           <div class="api__sig">pub let source : System</div>
@@ -941,7 +954,7 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="limits">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no">05</span>
+      <span class="sec__no" data-zh="五">05</span>
       <h2 class="sec__title" data-zh="界限">Limits</h2>
       <p class="sec__note" data-zh="本非发生器，亦不以发生器自居。">It is not a generator, and does not pretend to be one.</p>
     </div>

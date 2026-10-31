@@ -138,6 +138,22 @@ ABSORB = {
     "Unavailable::output": "Unavailable",
 }
 
+CN_DIGIT = "零一二三四五六七八九十"
+
+
+def cn_count(n: int) -> str:
+    return CN_DIGIT[n] if 0 <= n <= 10 else str(n)
+
+
+CN_WORD = {
+    "fn": "函数",
+    "type": "类型",
+    "error": "错误",
+    "value": "值",
+    "trait": "契约",
+    "alias": "别名",
+}
+
 COUNT_WORD = {
     "fn": ("function", "functions"),
     "type": ("type", "types"),
@@ -200,8 +216,10 @@ def rows_html() -> str:
             summary = " · ".join(
                 f"{n} {COUNT_WORD[k][1] if n > 1 else COUNT_WORD[k][0]}" for k, n in counts.items()
             )
+            cn_summary = " · ".join(f"{CN_WORD[k]}{cn_count(n)}" for k, n in counts.items())
             out.append(
-                f'        <div class="api__grp"><span>{html.escape(group)}</span><i>{summary}</i></div>'
+                f'        <div class="api__grp"><span>{html.escape(group)}</span>'
+                f'<i data-zh="{cn_summary}">{summary}</i></div>'
             )
             out.append('        <div class="api__rows">')
         sig = "<br>".join(html.escape(line) for line in row["sig"])
