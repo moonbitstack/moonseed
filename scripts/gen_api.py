@@ -142,7 +142,18 @@ CN_DIGIT = "零一二三四五六七八九十"
 
 
 def cn_count(n: int) -> str:
-    return CN_DIGIT[n] if 0 <= n <= 10 else str(n)
+    """Chinese numerals for counts, up to ninety-nine. Arabic digits would
+    break the line of a Chinese page: 函数十四, not 函数14."""
+    if n < 0:
+        return str(n)
+    if n <= 10:
+        return CN_DIGIT[n]
+    if n < 20:
+        return "十" + CN_DIGIT[n - 10]
+    if n < 100:
+        tens, units = divmod(n, 10)
+        return CN_DIGIT[tens] + "十" + (CN_DIGIT[units] if units else "")
+    return str(n)
 
 
 CN_WORD = {
@@ -277,7 +288,10 @@ def main() -> int:
         print(f"docs API table covers all {len(declared)} public items in {len(ROWS)} rows")
         return 0
 
-    PAGE.write_text(fresh, encoding="utf-8", newline="\n")
+    # Not Path.write_text: on Windows it truncates before it validates newline,
+    # and a ValueError there leaves the page at zero bytes.
+    with open(PAGE, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(fresh)
     print(f"wrote docs/index.html: {len(ROWS)} rows for {len(declared)} public items")
     return 0
 
