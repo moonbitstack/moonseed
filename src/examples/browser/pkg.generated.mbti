@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseed/examples/browser"
+
+// Values
+pub fn below_hits(Int32, Int32, Int32, Int32) -> Int32
+
+pub fn mod_hits(Int32, Int32, Int32, Int32) -> Int32
+
+pub fn open() -> Int32
+
+pub fn push(Int32) -> Unit
+
+pub fn reset() -> Unit
+
+pub fn taken() -> Int32
+
+pub fn unit() -> Double
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

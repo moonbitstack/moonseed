@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="moonseed: secure random bytes and unbiased sampling for MoonBit, over any source you supply. No seeded fallback.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moonseed — secure bytes, no seed</title>
+<style>
+/* ============================================================
+   MoonSeed moonseed — a library page, glazed
+   胎是这张纸，釉是这些面：青瓷承代码，云母承来源，青花承接口，毛玻璃承边界。
+   规矩：圆角恒为 0；线恒为 0.5px；影恒为硬边；
+        全站只有一个强调色（青花钴），朱砂只盖在"已经发生的事"上。
+   ============================================================ */
+
+:root{
+  --slab:      #F7F9F8;
+  --slab-2:    #F1F5F3;
+  --slab-3:    #E7EDEA;
+  --porcelain: #FCFEFD;
+  --celadon:   #A9C9BB;
+  --celadon-d: #83A696;
+  --cobalt:    #23477F;
+  --cobalt-2:  #3C63A2;
+  --ink:       #1D2325;
+  --ink-2:     #565F5C;
+  --ink-3:     #8D9691;
+  --cinnabar:  #AC382A;
+
+  --line:      rgba(35,71,127,.16);
+  --line-soft: rgba(35,71,127,.10);
+  --hard:      rgba(48,68,60,.20);
+
+  --serif: "Source Han Serif SC","Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --kai:   "Kaiti SC","STKaiti","KaiTi","Songti SC",serif;
+  --sans:  "Inter","Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:  "JetBrains Mono","Cascadia Mono","SFMono-Regular","Consolas",monospace;
+
+  --press-in:  62ms  cubic-bezier(.3,.9,.4,1);
+  --press-out: 218ms cubic-bezier(.2,1.6,.35,1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{ overflow-x:hidden; max-width:100% }
+
+body{
+  background-color:#FFFFFF;
+  background-image:
+    radial-gradient(120% 64% at 50% -6%, #FFFFFF 0%, rgba(255,255,255,0) 58%),
+    radial-gradient(84% 56% at 94% 104%, rgba(146,184,170,.20), rgba(255,255,255,0) 60%),
+    radial-gradient(66% 48% at 2% 78%, rgba(186,204,198,.13), rgba(255,255,255,0) 58%),
+    linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(238,244,242,.85) 52%, rgba(255,255,255,.9) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.85;
+  -webkit-font-smoothing:antialiased;
+}
+/* 釉面外沿的暗角：一块板，不是一张纸 */
+body::after{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:60;
+  box-shadow:inset 0 0 220px rgba(70,96,86,.10), inset 0 0 40px rgba(70,96,86,.05);
+}
+
+::selection{ background:rgba(35,71,127,.14) }
+
+/* ---------- 滚动条：一条釉，不用系统那一根灰 ---------- */
+::-webkit-scrollbar{ width:11px; height:11px }
+::-webkit-scrollbar-button{ display:none; width:0; height:0 }
+::-webkit-scrollbar-track{
+  background:#F1F5F3;
+  box-shadow:inset .5px 0 0 rgba(35,71,127,.07);
+}
+::-webkit-scrollbar-thumb{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,0) 44%),
+    linear-gradient(180deg,#B4CEC4,#94B4A8);
+  box-shadow:
+    inset 0 0 0 .5px rgba(35,71,127,.22),
+    inset 0 1px 0 rgba(255,255,255,.7),
+    inset 0 -1px 0 rgba(48,68,60,.16);
+}
+::-webkit-scrollbar-thumb:hover{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,0) 44%),
+    linear-gradient(180deg,#C0D6CD,#A1C0B4);
+}
+::-webkit-scrollbar-corner{ background:#F1F5F3 }
+/* Firefox 只认标准属性；Chrome 走上面那套伪元素，别让它退回系统滚动条 */
+@supports not selector(::-webkit-scrollbar){
+  html{ scrollbar-width:thin; scrollbar-color:#A6C3B7 #F1F5F3 }
+}
+
+/* 中文的按钮与注记：衬线字，才配得上那两个字的重 */
+body[data-lang="zh"] .btn{ font-family:var(--serif); font-size:12px; letter-spacing:.22em }
+body[data-lang="zh"] .btn i{ width:14px; opacity:.5 }
+/* 中文双线：字前字后各一道 */
+body[data-lang="zh"] .btn span{ display:inline-flex; align-items:center; gap:9px }
+body[data-lang="zh"] .btn span::after{
+  content:''; display:block; width:14px; height:.5px;
+  background:currentColor; opacity:.5; margin-left:-1px;
+}
+body[data-lang="zh"] .rail__nav a{ font-family:var(--serif); font-size:10.5px; letter-spacing:.14em }
+body[data-lang="zh"] .stage__cap div{ font-size:9.5px; letter-spacing:.06em }
+body[data-lang="zh"] .stage__cap b{ font-size:10px; letter-spacing:.01em }
+
+a:focus-visible, .lang button:focus-visible{
+  outline:.5px solid var(--cobalt); outline-offset:3px;
+}
+.lang button{ border-radius:0 }
+
+.mono{
+  font-family:var(--mono);
+  font-size:10.5px; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+.sheet{ max-width:1080px; margin:0 auto; padding:0 32px }
+
+/* ---------- 顶栏 ---------- */
+.rail{
+  position:sticky; top:0; z-index:50;
+  background:rgba(247,249,248,.92);
+  backdrop-filter:blur(4px);
+  border-bottom:.5px solid var(--line-soft);
+}
+.rail__in{
+  max-width:1080px; margin:0 auto; padding:0 32px;
+  height:48px; display:flex; align-items:center; gap:20px;
+}
+.rail__brand{ display:flex; align-items:baseline; gap:10px }
+.rail__brand b{
+  font-family:var(--serif); font-weight:600; font-size:15px; letter-spacing:.22em;
+}
+.rail__nav{ margin-left:auto; display:flex; gap:19px }
+.rail__nav a{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.15em;
+  color:var(--ink-3); text-decoration:none; text-transform:uppercase;
+  padding-bottom:2px; border-bottom:.5px solid transparent;
+  transition:color .15s, border-color .15s;
+}
+.rail__nav a:hover{ color:var(--cobalt); border-color:var(--cobalt) }
+
+/* 语言开关 */
+.lang{ display:flex; align-items:center; margin-left:6px;
+  border-left:.5px solid var(--line-soft); padding-left:14px }
+.lang button{
+  border:0; background:none; padding:0 5px; cursor:pointer;
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em; line-height:1;
+  color:var(--ink-3); transition:color .12s;
+}
+.lang button:hover{ color:var(--cobalt) }
+.lang button.is-on{ color:var(--ink) }
+.lang button + button{ border-left:.5px solid var(--line-soft) }
+
+/* ============================================================
+   一颗瓷片 —— 页面上唯一的交互原语
+   ============================================================ */
+.tile{
+  position:relative;
+  border:0; padding:0; margin:0;
+  color:var(--ink);
+  font:inherit; text-align:left;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  background:
+    radial-gradient(72% 58% at 24% 10%, #FFFFFF 0%, rgba(255,255,255,0) 56%),
+    radial-gradient(80% 72% at 88% 98%, rgba(88,118,108,.20), transparent 62%),
+    linear-gradient(152deg,#F1F8F5,#DFEAE5 58%,#D0DDD7);
+  box-shadow:
+    inset 0 0 0 .5px rgba(35,71,127,.28),
+    inset 0 1px 0 #FFFFFF,
+    inset 0 -.5px 0 rgba(88,118,108,.40),
+    0 1px 0 rgba(48,68,60,.24),
+    0 3px 7px -4px rgba(50,80,70,.30);
+  transform:translateY(0);
+  transition:transform var(--press-out), box-shadow var(--press-out);
+  will-change:transform;
+  overflow:hidden;
+}
+.tile:hover{
+  transform:translateY(-1px);
+  box-shadow:
+    inset 0 0 0 .5px rgba(35,71,127,.32),
+    inset 0 1px 0 #FFFFFF,
+    inset 0 -.5px 0 rgba(96,124,114,.34),
+    0 2px 0 var(--hard);
+}
+.tile:active{
+  transform:translateY(1.5px) scale(.995);
+  transition:transform var(--press-in), box-shadow var(--press-in);
+  box-shadow:
+    inset 0 0 0 .5px rgba(35,71,127,.16),
+    inset 0 1px 2px rgba(80,104,96,.16);
+}
+.tile:focus-visible{ outline:.5px solid var(--cobalt); outline-offset:2px }
+
+/* ============================================================
+   首屏
+   ============================================================ */
+.hero{ padding:60px 0 0 }
+.hero__in{
+  display:grid; grid-template-columns:minmax(0,1fr) auto;
+  gap:64px; align-items:center;
+}
+.hero__eyebrow{ margin-bottom:20px }
+
+/* 全小写的字，上下各一条装饰线；换成 MoonSeed 就不需要了 */
+.wm{
+  display:inline-block; position:relative;
+  font-family:var(--serif); font-weight:400;
+  font-size:clamp(50px,7.2vw,88px);
+  line-height:1; letter-spacing:.015em;
+  color:#141A1C;
+  padding:.24em 0 .28em;
+  margin-left:-.02em;
+}
+.wm::before,.wm::after{
+  content:''; position:absolute; left:0; right:0; height:.5px;
+  background:linear-gradient(90deg,
+    rgba(35,71,127,0) 0%, rgba(35,71,127,.44) 14%,
+    rgba(35,71,127,.44) 86%, rgba(35,71,127,0) 100%);
+}
+.wm::before{ top:0 }
+.wm::after{ bottom:0 }
+body[data-lang="zh"] .wm::before,
+body[data-lang="zh"] .wm::after{ display:none }
+body[data-lang="zh"] .wm{ letter-spacing:.03em; padding:.18em 0 }
+
+.hero__sub{
+  margin-top:18px; font-family:var(--serif); font-size:17px;
+  letter-spacing:.06em; color:var(--ink-2);
+}
+.hero__lede{
+  margin:16px 0 0; max-width:min(31em,100%);
+  font-size:14px; line-height:2.05; color:var(--ink-2);
+}
+.hero__lede b{ color:var(--ink); font-weight:600 }
+
+.install{
+  margin-top:26px; display:inline-flex; align-items:baseline; gap:10px;
+  padding:10px 16px 11px;
+  border:.5px solid var(--line);
+  background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(241,245,243,.5));
+  box-shadow:inset 0 1px 0 #fff;
+  font-family:var(--mono); font-size:12px; letter-spacing:.02em; color:var(--ink);
+}
+.install span{ font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-3) }
+
+.hero__acts{ margin-top:22px; display:flex; gap:3px }
+.btn{
+  padding:12px 24px 12px 22px;
+  font-family:var(--mono); font-size:10px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--cobalt);
+  display:inline-flex; align-items:center; gap:9px;
+  text-decoration:none;
+  box-shadow:
+    inset 0 0 0 .5px rgba(35,71,127,.34),
+    inset 0 1px 0 #FFFFFF,
+    inset 0 -.5px 0 rgba(110,134,126,.28),
+    0 1px 0 var(--hard);
+}
+.btn i{ display:block; width:13px; height:.5px; background:currentColor; opacity:.6 }
+.btn--ink{
+  color:#F2F7FB;
+  background:
+    radial-gradient(34% 22% at 28% 10%, rgba(255,255,255,.34), rgba(255,255,255,0) 68%),
+    radial-gradient(70% 62% at 86% 98%, rgba(6,20,40,.38), transparent 62%),
+    linear-gradient(152deg,#3B62A0,#23477F 56%,#16305A);
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.30),
+    inset 0 1px 0 rgba(255,255,255,.40),
+    inset 0 -.5px 0 rgba(6,20,40,.55),
+    0 1px 0 rgba(24,40,60,.34),
+    0 3px 7px -4px rgba(24,40,60,.40);
+}
+.btn--ink:hover{ color:#FFFFFF }
+
+/* 那块瓷 */
+.stage{ display:flex; flex-direction:column; align-items:center }
+.stage__note{
+  margin-bottom:14px; max-width:22em; text-align:right;
+  font-size:11.5px; line-height:1.9; color:var(--ink-3);
+}
+.gtile{
+  position:relative; width:320px; height:320px;
+  border:0; padding:0; cursor:crosshair;
+  -webkit-tap-highlight-color:transparent;
+  background:
+    radial-gradient(100% 100% at 50% 48%, rgba(255,255,255,0) 56%, rgba(56,92,84,.10) 86%, rgba(42,74,68,.17) 100%),
+    radial-gradient(32% 24% at 29% 13%, rgba(255,255,255,.20), rgba(255,255,255,0) 76%),
+    radial-gradient(14% 9% at 28% 11%, rgba(255,255,255,.42), rgba(255,255,255,0) 88%),
+    radial-gradient(30% 22% at 72% 76%, rgba(206,232,224,.34), transparent 72%),
+    radial-gradient(26% 20% at 20% 64%, rgba(126,166,154,.24), transparent 74%),
+    radial-gradient(40% 32% at 78% 96%, rgba(48,86,78,.20), transparent 64%),
+    linear-gradient(158deg,#BDD8D2 0%, #A9C9C1 38%, #94B8AF 70%, #82A79E 100%);
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.62),
+    inset 0 1.5px 0 rgba(255,255,255,.98),
+    inset 0 -2px 0 rgba(36,68,60,.40),
+    inset -1.5px 0 0 rgba(36,68,60,.18),
+    inset 0 0 30px 12px rgba(34,66,58,.20),
+    inset 0 0 6px 0 rgba(34,66,58,.10),
+    0 0 0 .5px rgba(35,71,127,.16),
+    0 1px 0 rgba(48,68,60,.22),
+    0 5px 0 -3px rgba(70,96,86,.14),
+    0 13px 0 -8px rgba(70,96,86,.09);
+  transition:transform var(--press-out), box-shadow var(--press-out);
+  overflow:hidden;
+}
+.gtile:active{ transform:translateY(1.5px) }
+.gtile:focus-visible{ outline:.5px solid var(--cobalt); outline-offset:4px }
+
+.gtile__grain{
+  position:absolute; inset:0; pointer-events:none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.013' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23c)'/%3E%3C/svg%3E");
+  background-size:180px 180px, 100% 100%;
+  opacity:.38; mix-blend-mode:soft-light;
+}
+.gtile::before{
+  content:''; position:absolute; left:-2%; top:-26%; width:26%; height:152%;
+  transform:rotate(20deg);
+  background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.13) 46%, rgba(255,255,255,0));
+  filter:blur(18px); pointer-events:none;
+}
+.gtile svg{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none }
+
+.gtile__hint{
+  position:absolute; left:0; right:0; bottom:14px; text-align:center;
+  font-family:var(--mono); font-size:9px; letter-spacing:.26em;
+  color:rgba(35,71,127,.46); pointer-events:none;
+  transition:opacity .18s;
+}
+.gtile.is-cracked .gtile__hint{ opacity:0; visibility:hidden }
+.gtile.is-quaked{ animation:quake .13s linear 2 }
+@keyframes quake{
+  0%{transform:translate(0,0)} 50%{transform:translate(.7px,.5px)} 100%{transform:translate(0,0)}
+}
+
+/* 朱砂款识：只标记已经发生的事 */
+.seal{
+  position:absolute; right:14px; bottom:13px; width:20px; height:20px;
+  background:var(--cinnabar); color:#fff;
+  font-family:var(--kai); font-size:11.5px; line-height:20px; text-align:center;
+  opacity:0; transform:scale(.84); pointer-events:none;
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.34),
+    inset 0 -1px 0 rgba(90,20,12,.35),
+    0 1px 0 rgba(120,30,20,.22);
+  transition:opacity .18s ease, transform .18s cubic-bezier(.2,1.5,.4,1);
+}
+.gtile.is-cracked .seal{ opacity:1; transform:scale(1) }
+
+.stage__cap{
+  margin-top:26px; display:grid; grid-template-columns:1fr 1fr; gap:12px 26px;
+  width:100%; max-width:320px;
+}
+.stage__cap div{
+  font-family:var(--mono); font-size:9px; letter-spacing:.1em;
+  color:var(--ink-3); line-height:1.9;
+}
+.stage__cap b{ display:block; color:var(--cobalt); font-weight:400; letter-spacing:.04em }
+
+/* ---------- 章节 ---------- */
+.sec{ padding:74px 0 66px; border-top:.5px solid var(--line-soft) }
+.sec__head{ display:flex; align-items:baseline; gap:16px; margin-bottom:32px }
+.sec__no{
+  font-family:var(--mono); font-size:10px; letter-spacing:.22em; color:var(--cinnabar);
+}
+.sec__title{
+  font-family:var(--serif); font-weight:500; font-size:26px; letter-spacing:.14em;
+}
+.sec__note{
+  margin-left:auto; max-width:26em;
+  font-size:12px; line-height:1.95; color:var(--ink-3); text-align:right;
+}
+/* ---------- 中文小标题的字体装饰 · 回纹 ----------
+   二字题（章节）作一条题签，题后引一段回纹，右端渐隐；
+   四字题（条目）起首一枚回纹，后接一道渐隐的引线。 */
+body[data-lang="zh"] .sec__title{
+  position:relative; line-height:1.32;
+  padding:5px 16px 6px 13px;
+  letter-spacing:.30em;
+  color:#1A2220;
+  background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(244,249,247,.16));
+  box-shadow:
+    inset 0 0 0 .5px rgba(35,71,127,.30),
+    inset 0 1px 0 rgba(255,255,255,.92),
+    0 1px 0 rgba(48,68,60,.05);
+  text-shadow:0 1px 0 rgba(255,255,255,.92), 0 -.5px 0 rgba(35,71,127,.13);
+}
+/* 文武边：外一线，内一线，相距二 */
+body[data-lang="zh"] .sec__title::before{
+  content:''; position:absolute; inset:2px; pointer-events:none;
+  box-shadow:inset 0 0 0 .5px rgba(35,71,127,.15);
+}
+body[data-lang="zh"] .sec__title::after{
+  content:''; position:absolute; left:calc(100% + 14px); top:50%;
+  width:76px; height:13px; margin-top:-6.5px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='19' height='13' viewBox='0 0 19 13'%3E%3Cpath d='M12.5 12.5H.5V.5H12.5V8H4V3.5H8.5' fill='none' stroke='%2323477F' stroke-width='.85'/%3E%3C/svg%3E");
+  background-repeat:repeat-x; background-size:19px 13px;
+  opacity:.44; pointer-events:none;
+}
+
+body[data-lang="zh"] .col h3,
+body[data-lang="zh"] .lim b{ letter-spacing:.16em }
+
+body[data-lang="zh"] .col h3::before,
+body[data-lang="zh"] .lim b::before{
+  content:''; display:inline-block; flex:0 0 auto;
+  width:13px; height:13px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Cpath d='M12.5 12.5H.5V.5H12.5V8H4V3.5H8.5' fill='none' stroke='%2323477F' stroke-width='.85'/%3E%3C/svg%3E");
+  background-size:13px 13px; background-repeat:no-repeat;
+  opacity:.5;
+}
+body[data-lang="zh"] .col h3::before{ margin-right:9px; vertical-align:-.09em }
+body[data-lang="zh"] .lim b{ display:flex; align-items:center; gap:9px }
+body[data-lang="zh"] .lim b::after{
+  content:''; flex:1 1 auto; height:.5px; margin-left:2px;
+  background:linear-gradient(90deg, rgba(35,71,127,.26), rgba(35,71,127,0));
+}
+
+.prose{ font-size:13.5px; line-height:2.1; color:var(--ink-2) }
+.prose + .prose{ margin-top:15px }
+.prose b{ color:var(--ink); font-weight:600 }
+.prose em{
+  font-style:normal; font-family:var(--mono); font-size:12px;
+  color:var(--cobalt); letter-spacing:0;
+}
+.two{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.02fr); gap:52px; align-items:start }
+.two > *{ min-width:0 }
+
+/* 代码：印在釉面上，不是一个黑盒子 */
+.code{
+  padding:22px 24px;
+  background:linear-gradient(170deg,#F5F9F7,#E9F0ED);
+  box-shadow:
+    inset 0 0 0 .5px var(--line-soft),
+    inset 0 1px 0 #fff,
+    0 1px 0 var(--hard);
+  border-left:1.5px solid var(--cobalt);
+  font-family:var(--mono); font-size:11.5px; line-height:2;
+  color:#2C3335; overflow-x:auto; white-space:pre; letter-spacing:0;
+}
+.code .k{ color:var(--cobalt) }
+.code .s{ color:#8A5A33 }
+.code .c{ color:rgba(44,51,53,.42) }
+.code--on{ box-shadow:inset 0 0 0 .5px rgba(35,71,127,.10), inset 0 1px 0 rgba(255,255,255,.9) }
+
+/* ============================================================
+   面：四种材质，四种承重
+   —— 每一块都是一个 div，里面装的是这个库的东西，不是瓷的说明
+   ============================================================ */
+.face{
+  position:relative;
+  box-shadow:
+    inset 0 0 0 .5px rgba(35,71,127,.16),
+    inset 0 1px 0 rgba(255,255,255,.9),
+    0 1px 0 rgba(48,68,60,.20),
+    0 10px 22px -18px rgba(40,70,60,.55);
+}
+.face__tag{
+  position:absolute; top:11px; right:14px;
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.2em;
+  text-transform:uppercase; color:rgba(35,71,127,.42);
+  pointer-events:none;
+}
+
+/* 青瓷 · 面 —— 承代码，透一点光 */
+.face--celadon{
+  padding:30px 32px 32px;
+  background:
+    radial-gradient(90% 70% at 22% 4%, rgba(255,255,255,.9), rgba(255,255,255,0) 58%),
+    linear-gradient(158deg,#DDEBE4,#C6DDD4 46%,#B4CEC4 78%,#A8C3B9);
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.72),
+    inset 0 1.5px 0 rgba(255,255,255,.95),
+    inset 0 -2px 0 rgba(54,86,76,.26),
+    inset 0 0 26px 8px rgba(46,80,70,.10),
+    0 1px 0 rgba(48,68,60,.20),
+    0 12px 26px -20px rgba(40,70,60,.6);
+}
+.face--celadon .code{
+  background:none; box-shadow:none; padding:2px 0 2px 20px;
+  border-left:1.5px solid rgba(35,71,127,.46);
+  color:#1C332C;
+}
+.face--celadon .code .c{ color:rgba(28,51,44,.46) }
+.face--celadon .code .s{ color:#7E5230 }
+
+/* 云母 · 底 —— 一层一层的来源，会反光 */
+.face--mica{
+  padding:28px 30px 30px;
+  background-color:#E9EDE7;
+  background-image:
+    repeating-linear-gradient(104deg, rgba(255,255,255,.30) 0 1px, rgba(255,255,255,0) 1px 13px),
+    linear-gradient(160deg,#F2F5F0,#D8DFD8);
+}
+
+/* 青花 · 记 —— 接口是釉下的一笔，深色上写浅字 */
+.face--cobalt{
+  padding:28px 30px 30px;
+  background:
+    radial-gradient(38% 26% at 24% 4%, rgba(255,255,255,.22), rgba(255,255,255,0) 66%),
+    linear-gradient(158deg,#31558E,#23477F 54%,#183259);
+  color:#E6EEF8;
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.26),
+    inset 0 1px 0 rgba(255,255,255,.34),
+    inset 0 -2px 0 rgba(8,18,34,.48),
+    0 1px 0 rgba(24,40,60,.30),
+    0 12px 26px -20px rgba(24,40,60,.7);
+}
+.face--cobalt .face__tag{ color:rgba(255,255,255,.42) }
+.face--cobalt::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='150' height='150' filter='url(%23p)'/%3E%3C/svg%3E");
+  opacity:.14; mix-blend-mode:soft-light;
+}
+
+/* 毛玻璃 · 隔 —— 边界看不清，但看得见 */
+.face--frost{ padding:14px; overflow:hidden }
+.frost__bg{
+  position:absolute; inset:14px;
+  background:
+    repeating-linear-gradient(90deg, rgba(78,124,108,.44) 0 1.5px, transparent 1.5px 22px),
+    radial-gradient(64% 76% at 20% 14%, rgba(150,190,176,.95), transparent 68%),
+    linear-gradient(150deg,#DDEDE7,#AFCBC0);
+}
+.frost__motif{
+  position:absolute; right:2px; bottom:-58px;
+  font-family:var(--kai); font-size:270px; line-height:1;
+  color:rgba(28,56,90,.52); pointer-events:none;
+}
+.frost__glass{
+  position:relative; padding:28px 30px 30px;
+  background:rgba(252,254,253,.54);
+  backdrop-filter:blur(16px) saturate(1.04);
+  -webkit-backdrop-filter:blur(16px) saturate(1.04);
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.8),
+    inset 0 1px 0 #fff,
+    inset 0 -10px 16px rgba(70,96,86,.05);
+}
+
+/* 来源表：一行一块薄片 */
+.srcs{ margin-top:6px }
+.src{
+  display:grid; grid-template-columns:1.15fr 1fr; gap:18px;
+  padding:13px 0 14px; border-top:.5px solid rgba(35,71,127,.12);
+  align-items:baseline;
+}
+.src:first-child{ border-top:0; padding-top:2px }
+.src__k{ font-family:var(--mono); font-size:11.5px; color:var(--cobalt); letter-spacing:0 }
+.src__v{ font-size:12.5px; line-height:1.85; color:var(--ink-2) }
+
+/* 接口表：写在深色上的浅字 */
+.aside-note{
+  margin-top:18px; font-size:12px; line-height:1.95; color:var(--ink-3);
+}
+.aside-note b{
+  font-family:var(--mono); font-size:10.5px; font-weight:400;
+  color:var(--cobalt); letter-spacing:.02em;
+}
+.api{ margin-top:4px }
+.api__grp{
+  display:flex; align-items:baseline; justify-content:space-between; gap:18px;
+  padding:13px 0 9px; margin-top:12px; border-top:1px solid rgba(255,255,255,.34);
+}
+.api__grp:first-child{ margin-top:0; padding-top:0; border-top:0 }
+.api__grp span{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:#F2F7FC }
+.api__grp i{
+  font-style:normal; font-family:var(--mono); font-size:9px;
+  letter-spacing:.1em; color:rgba(230,238,248,.46); text-transform:uppercase;
+}
+.api__row{
+  display:grid; grid-template-columns:1.02fr 1fr; gap:20px;
+  padding:12px 0 13px; border-top:.5px solid rgba(255,255,255,.16);
+  align-items:baseline;
+}
+.api__row:first-child{ border-top:0; padding-top:2px }
+.api__sig{ font-family:var(--mono); font-size:11.5px; letter-spacing:-.01em; color:#F2F7FC; line-height:1.8;
+  text-indent:-1.1em; padding-left:1.1em }
+.api__g{ font-size:12.5px; line-height:1.8; color:rgba(230,238,248,.74) }
+
+/* 直方图：同一串字节，两种取法 */
+.hist{ margin:44px 0 0 }
+.hist__head{ display:flex; align-items:baseline; justify-content:space-between; gap:20px;
+  padding-bottom:9px; border-bottom:.5px solid var(--line-soft) }
+.hist__head b{ font-family:var(--mono); font-size:10px; font-weight:400;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--cobalt) }
+.hist__head span{ font-size:11.5px; letter-spacing:.04em; color:var(--ink-3) }
+#hist-svg{ display:block; width:100%; height:190px; margin-top:14px }
+.hist__foot{ margin-top:10px; font-size:11.5px; line-height:1.9; color:var(--ink-3) }
+
+/* 三条保证 */
+.cols{ display:grid; grid-template-columns:repeat(3,1fr); gap:40px; margin-top:8px }
+.col b{
+  display:block; font-family:var(--mono); font-size:9px; font-weight:400;
+  letter-spacing:.18em; color:var(--cinnabar); margin-bottom:10px;
+}
+.col h3{
+  margin:0 0 9px; font-weight:500; font-family:var(--serif); font-size:17px;
+  letter-spacing:.08em; color:var(--ink);
+  padding-bottom:9px; border-bottom:.5px solid var(--line-soft);
+}
+.col p{ font-size:12.5px; line-height:1.95; color:var(--ink-3) }
+.col p em{ font-style:normal; font-family:var(--mono); font-size:11px; color:var(--cobalt) }
+
+/* 边界 */
+.lim{ display:grid; grid-template-columns:190px 1fr; gap:26px; align-items:baseline;
+  padding:14px 0 15px; border-top:.5px solid rgba(35,71,127,.12) }
+.lim:first-child{ border-top:0; padding-top:0 }
+.lim b{ font-family:var(--serif); font-weight:500; font-size:14.5px; letter-spacing:.06em; color:var(--ink) }
+.lim p{ font-size:12.5px; line-height:1.9; color:var(--ink-2) }
+.lim em{ font-style:normal; font-family:var(--mono); font-size:11px; color:var(--cobalt) }
+
+/* ---------- 页脚 ---------- */
+.foot{ padding:48px 0 88px; border-top:.5px solid var(--line-soft) }
+.foot__in{ display:flex; gap:44px; flex-wrap:wrap; align-items:flex-start }
+.foot__in > div{ line-height:2.05 }
+.foot__in b{ display:block; font-family:var(--mono); font-weight:400; font-size:10.5px;
+  letter-spacing:.1em; color:var(--ink) }
+.foot__next{ margin-left:auto; text-align:right;
+  font-family:var(--serif); font-size:14px; letter-spacing:.18em; color:var(--ink-2) }
+.foot__next span{ display:block; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.16em; color:var(--ink-3); margin-top:6px }
+.foot__next a{ color:inherit; text-decoration:none; border-bottom:.5px solid var(--line) }
+
+@media (max-width:980px){
+  /* 窄屏：题后仍有回纹，故注记另起一行，不压在纹上 */
+  body[data-lang="zh"] .sec__note{ flex:1 1 100%; margin-left:0; text-align:left; max-width:100% }
+  .hero__in{ grid-template-columns:1fr; gap:44px }
+  .stage{ align-items:flex-start }
+  .stage__note{ text-align:left; max-width:26em }
+  .two{ grid-template-columns:minmax(0,1fr); gap:34px }
+  .cols{ grid-template-columns:1fr; gap:28px }
+  .sec__head{ flex-wrap:wrap; gap:10px }
+  .sec__note{ margin-left:0; text-align:left; max-width:100% }
+}
+@media (max-width:760px){
+  .sheet, .rail__in{ padding:0 20px }
+  .rail__nav{ display:none }
+  .lang{ margin-left:auto }
+  .hero{ padding-top:36px }
+  .gtile{ width:min(84vw,320px); height:min(84vw,320px) }
+  .stage__cap{ grid-template-columns:1fr 1fr }
+  .face--celadon, .face--mica, .face--cobalt{ padding:24px 20px 26px }
+  .frost__glass{ padding:24px 20px 26px }
+  .api__row, .src{ grid-template-columns:1fr; gap:5px }
+  .lim{ grid-template-columns:1fr; gap:5px }
+  .sec{ padding:54px 0 }
+}
+</style>
+</head>
+<body>
+
+<div class="rail">
+  <div class="rail__in">
+    <div class="rail__brand">
+      <b data-zh="MoonSeed">moonseed</b><span class="mono">0.0.1 &nbsp;·&nbsp; Apache-2.0</span>
+    </div>
+    <nav class="rail__nav">
+      <a href="#source" data-zh="01 来源">01 source</a>
+      <a href="#start" data-zh="02 起笔">02 start</a>
+      <a href="#sample" data-zh="03 取样">03 sampling</a>
+      <a href="#api" data-zh="04 接口">04 api</a>
+      <a href="#limits" data-zh="05 界限">05 limits</a>
+    </nav>
+    <div class="lang" id="lang">
+      <button type="button" data-lang="en" class="is-on" title="English (en-US)">en</button>
+      <button type="button" data-lang="zh" title="中文（zh-Hans）">zh</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 首屏 ==================== -->
+<header class="hero">
+  <div class="sheet hero__in">
+    <div class="hero__tx">
+      <div class="hero__eyebrow mono">moonbitstack / moonseed</div>
+      <h1 class="wm" data-zh="MoonSeed">moonseed</h1>
+      <p class="hero__sub" data-zh="安全的随机字节，无偏的取样。">Secure random bytes, drawn without bias.</p>
+      <p class="hero__lede" data-zh="来源由你，填满由它。无发生器，无状态，亦无以种子权代熵之回退：无字节可取，则止而报 &lt;b&gt;Unavailable&lt;/b&gt;。">
+        You supply the source; it fills the buffer. No generator, no state, and no quiet
+        fallback to a seeded one — when there are no bytes to be had, the call stops with
+        <b>Unavailable</b>.
+      </p>
+      <div class="install"><span>moon add</span>moonbitstack/moonseed</div>
+      <div class="hero__acts">
+        <a class="tile btn" href="#api"><i></i><span data-zh="接口">the API</span></a>
+        <a class="tile btn btn--ink" href="https://github.com/moonbitstack/moonseed"><i></i><span data-zh="仓库">repository</span></a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <p class="stage__note" data-zh="此瓷由本页所取之字节、经 below 抽取而绘成。按之即裂。">
+        This tile was drawn from the bytes this page took, through below. Press it and the net breaks.
+      </p>
+      <button class="gtile" id="gtile" type="button" aria-label="glazed tile, press to crack">
+        <span class="gtile__grain"></span>
+        <svg id="crack" viewBox="0 0 360 360" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <span class="gtile__hint" data-zh="按 之 即 裂">p r e s s</span>
+        <span class="seal">月</span>
+      </button>
+
+      <div class="stage__cap">
+        <div><span data-zh="所取字节">bytes taken</span><b><span id="st-taken">—</span> · browser</b></div>
+        <div><span data-zh="来源">source</span><b>Replay</b></div>
+        <div><span data-zh="取样">sampling</span><b id="st-engine">below · wasm-gc</b></div>
+        <div><span data-zh="碎片">shards</span><b id="st-count">—</b></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== 01 · 来源 ==================== -->
+<section class="sec" id="source" style="margin-top:56px">
+  <div class="sheet">
+    <div class="sec__head">
+      <span class="sec__no">01</span>
+      <h2 class="sec__title" data-zh="来源">Source</h2>
+      <p class="sec__note" data-zh="一法而已，填满缓冲；字节所自，由调用方定。">One method, fills the buffer. Who fills it is the caller's business.</p>
+    </div>
+
+    <div class="two">
+      <div>
+        <p class="prose" data-zh="全库只一约：交出字节。&lt;em&gt;@system.source&lt;/em&gt; 即平台：JavaScript 上取 &lt;em&gt;crypto.getRandomValues&lt;/em&gt;，wasm 上取 WASI 之 &lt;em&gt;random_get&lt;/em&gt;，native 则委诸运行时。">
+          The crate is one contract: give me bytes. <em>@system.source</em> is the platform's —
+          <em>crypto.getRandomValues</em> on JavaScript, WASI's <em>random_get</em> on wasm, the
+          runtime on native.
+        </p>
+        <p class="prose" data-zh="&lt;em&gt;Replay&lt;/em&gt; 将所予字节依次发尽而止，测试向量即由此回放。自定实现，可为设备，可为服务，亦可为一纸文件。三源殊途，同归一法。">
+          <em>Replay</em> hands back the bytes it was given, in order, until it runs out — that is
+          how the test vectors are replayed. Your own implementation can be a device, a service, a
+          file. Three kinds of source, one method.
+        </p>
+        <p class="prose" data-zh="无回退。此非文辞之诺，而为类型之约：取之不得，则 &lt;em&gt;raise&lt;/em&gt;；签名已明书，调用方无从回避。">
+          There is no fallback. That is not a promise in the prose, it is in the type: the call
+          <em>raises</em>, the signature says so, and the caller cannot miss it.
+        </p>
+      </div>
+
+      <div class="face face--celadon">
+        <span class="face__tag">celadon · surface</span>
+        <div class="code code--on"><span class="c" data-zh="// 一法，一误">// one method, one error</span>
+<span class="k">pub</span>(<span class="k">open</span>) <span class="k">trait</span> Source {
+  <span class="k">fn</span> fill(<span class="k">Self</span>, FixedArray[Byte]) -&gt; Unit <span class="k">raise</span> Unavailable
+}
+
+<span class="k">pub</span>(<span class="k">all</span>) <span class="k">suberror</span> Unavailable {
+  Platform            <span class="c" data-zh="// 平台无熵">// no entropy on this platform</span>
+  Exhausted           <span class="c" data-zh="// 回放已尽">// the replay is spent</span>
+  Failed(String)      <span class="c" data-zh="// 自定来源之败，缘由自陈">// your source failed, your reason</span>
+}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 02 · 起笔 ==================== -->
+<section class="sec" id="start">
+  <div class="sheet">
+    <div class="sec__head">
+      <span class="sec__no">02</span>
+      <h2 class="sec__title" data-zh="起笔">Start</h2>
+      <p class="sec__note" data-zh="三行足矣。无初始化，无全局状态，无须先造发生器。">Three lines. No init, no global state, no generator to construct first.</p>
+    </div>
+
+    <div class="two">
+      <div>
+      <div class="code"><span class="c" data-zh="// 三十二枚均匀字节；长为负则 abort">// thirty-two uniform bytes; a negative length aborts</span>
+<span class="k">let</span> key = <span class="k">@moonseed</span>.bytes(<span class="s">32</span>, <span class="k">@system</span>.source)
+
+<span class="c" data-zh="// [0, 1000)，宽同 bound">// in [0, 1000), as wide as the bound</span>
+<span class="k">let</span> n = <span class="k">@moonseed</span>.below(<span class="s">b"\x03\xe8"</span>, <span class="k">@system</span>.source)
+
+<span class="c" data-zh="// [1, 4)：私钥、nonce">// in [1, 4): a key, a nonce</span>
+<span class="k">let</span> d = <span class="k">@moonseed</span>.scalar(<span class="s">b"\x05"</span>, <span class="k">@system</span>.source)</div>
+
+        <p class="aside-note" data-zh="&lt;b&gt;moon run src/examples/tour&lt;/b&gt; 遍历诸接口，可见其如何索取字节。">
+          <b>moon run src/examples/tour</b> walks the whole API once, so you can watch it ask for bytes.
+        </p>
+      </div>
+
+      <div class="face face--mica">
+        <span class="face__tag">mica · ground</span>
+        <div class="srcs">
+          <div class="src">
+            <div class="src__k">@system.source</div>
+            <div class="src__v" data-zh="平台本身。JS 取 crypto，wasm 取 WASI random_get，native 委诸运行时。自身不存一物，每填皆重问于平台。">The platform. crypto on JS, WASI random_get on wasm, the runtime on native. It holds nothing; every fill asks again.</div>
+          </div>
+          <div class="src">
+            <div class="src__k">Replay::new(bytes)</div>
+            <div class="src__v" data-zh="所予字节依次发出，发尽则报 Exhausted。测试向量由此回放；remaining() 可问余数。">The bytes given, in order, then Exhausted. Test vectors walk this path; remaining() says how many bytes are left.</div>
+          </div>
+          <div class="src">
+            <div class="src__k">impl Source for …</div>
+            <div class="src__v" data-zh="自备之设备、服务或夹具。若失败，则 raise Failed(reason)，缘由原样达于调用方。">Your device, your service, your fixture. On failure raise Failed(reason) and the reason reaches the caller unchanged.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 03 · 取样 ==================== -->
+<section class="sec" id="sample">
+  <div class="sheet">
+    <div class="sec__head">
+      <span class="sec__no">03</span>
+      <h2 class="sec__title" data-zh="取样">Sampling</h2>
+      <p class="sec__note" data-zh="用拒绝法，不用取模。因取模则小者偏多，故此函数舍之。">Rejection, not modulo. Modulo favours the small values; not doing that is why this function exists.</p>
+    </div>
+
+    <div class="two">
+      <div>
+        <p class="prose" data-zh="&lt;em&gt;below(bound)&lt;/em&gt; 以 bound 为大端之数：bound−1 需几字节，则抽几字节；首字节溢出之高位置零；所得不小于 bound 者，弃而重抽。故诸值等概。">
+          <em>below(bound)</em> reads its bound as a big-endian number: draw exactly as many bytes as
+          bound−1 needs, clear the unused high bits of the first, and draw again while the value is at
+          or above bound. Every value is equally likely.
+        </p>
+        <p class="prose" data-zh="&lt;em&gt;scalar(order)&lt;/em&gt; 取自 [1, order)，即群之私钥、nonce。按 order 之宽抽取；遇零或不小于 order，则弃而重抽。其法与 FIPS 186-5 A.2.2 及 Go 之 ECDSA 同。P-521 之标量 66 字节，高位本清，故不可写作「索取 32 字节」。">
+          <em>scalar(order)</em> gives you something in [1, order) — a private key, a nonce. Draw as
+          wide as order, draw again while the value is zero or not below order: FIPS 186-5 A.2.2,
+          the same draw Go's ECDSA makes. A P-521 scalar is 66 bytes with the top bits clear, which
+          is why this cannot be "ask for 32 bytes".
+        </p>
+        <p class="prose" data-zh="二者皆与 Go 对校：以固定字节流喂 &lt;em&gt;crypto/rand.Int&lt;/em&gt; 与 &lt;em&gt;ecdsa.GenerateKey&lt;/em&gt;，测试中回放同一串字节，须得同值，且每一字节俱见其用。">
+          Both are checked against Go: fixed byte streams go into <em>crypto/rand.Int</em> and
+          <em>ecdsa.GenerateKey</em>, and the tests replay those same bytes and expect the same
+          values, every byte used.
+        </p>
+      </div>
+
+<div>
+        <div class="code"><span class="c" data-zh="// below(1000)：999 需十位，抽二字节">// below(1000): 999 needs 10 bits, draw 2 bytes</span>
+<span class="k">loop</span> {
+  source.fill(draw)          <span class="c" data-zh="// 二字节">// two bytes</span>
+  draw[<span class="s">0</span>] = draw[<span class="s">0</span>] &amp; <span class="s">0x03</span>    <span class="c" data-zh="// 高六位置零">// clear the top six</span>
+  <span class="k">let</span> v = be(draw)
+  <span class="k">if</span> v &lt; <span class="s">1000</span> { <span class="k">return</span> v }
+}
+
+<span class="c" data-zh="// 重抽之望数不及二，大抵一抽即过">// fewer than two draws on average</span></div>
+
+        <p class="aside-note" data-zh="&lt;b&gt;below(1 &lt;&lt; k)&lt;/b&gt; 绝不重抽，掩码恰可容纳。唯 bound 非 2 之幂者，方付此循环之费。">
+          <b>below(1 &lt;&lt; k)</b> never redraws — the mask already fits. Only a bound that is not a
+          power of two pays for the loop.
+        </p>
+      </div>
+    </div>
+
+    <figure class="hist">
+      <div class="hist__head">
+        <b data-zh="二百之界，二十桶">bound 200 · twenty buckets</b>
+        <span data-zh="同一串字节，二千抽：青为 below，赭为取模">one replay, two thousand draws: below in celadon, modulo in rouge</span>
+      </div>
+      <svg id="hist-svg" viewBox="0 0 760 190" preserveAspectRatio="none" role="img"
+           aria-label="counts per bucket, below against modulo"></svg>
+      <div class="hist__foot">
+        <span data-zh="等概则每桶整百，即二千除以二十。取模者前六桶见厚，余者见薄，其偏可见。">Equal odds put a hundred in every bucket, two thousand over twenty. The modulo bars run thick at the low end and thin at the high, and the tilt is plain to see.</span>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<!-- ==================== 04 · 接口 ==================== -->
+<section class="sec" id="api">
+  <div class="sheet">
+    <div class="sec__head">
+      <span class="sec__no">04</span>
+      <h2 class="sec__title" data-zh="接口">API</h2>
+      <p class="sec__note" data-zh="全部公开项，按包分列，无一遗漏。">Every public item, package by package. Nothing left out.</p>
+    </div>
+
+    <div class="face face--cobalt">
+      <span class="face__tag">cobalt · marking</span>
+      <div class="api">
+        <!-- api:begin -->
+        <div class="api__grp"><span>moonbitstack/moonseed</span><i>5 functions · 1 trait · 1 type · 1 error</i></div>
+        <div class="api__rows">
+        <div class="api__row" data-item="bytes">
+          <div class="api__sig">pub fn[S : Source] bytes(n : Int32, source : S) -&gt; Bytes raise Unavailable</div>
+          <div class="api__g" data-zh="均匀字节 n 枚，不多不少。n 为负乃调用之误，故直接 abort，不假装给了空串。">N uniform bytes, no more and no fewer. A negative n is a caller's mistake, so it aborts rather than pretend to hand back nothing.</div>
+        </div>
+        <div class="api__row" data-item="below">
+          <div class="api__sig">pub fn[S : Source] below(bound : BytesView, source : S) -&gt; Bytes raise Unavailable</div>
+          <div class="api__g" data-zh="[0, bound) 之内，宽同 bound。掩码舍去高位，越界即重抽；bound 为 1 不取字节，为 0 则 abort。">[0, bound), as wide as the bound. Mask the unused high bits, redraw while at or above bound. A bound of 1 reads nothing; zero aborts.</div>
+        </div>
+        <div class="api__row" data-item="scalar">
+          <div class="api__sig">pub fn[S : Source] scalar(order : BytesView, source : S) -&gt; Bytes raise Unavailable</div>
+          <div class="api__g" data-zh="[1, order)，宽同 order。取左起之位，遇零或越界则重抽，即 FIPS 186-5 A.2.2 之法。">[1, order), as wide as the order. Keep the leftmost bits, redraw on zero or overflow: the FIPS 186-5 A.2.2 draw.</div>
+        </div>
+        <div class="api__row" data-item="Source">
+          <div class="api__sig">pub(open) trait Source {<br>  fn fill(self, buf : FixedArray[Byte]) -&gt; Unit raise Unavailable<br>}</div>
+          <div class="api__g" data-zh="全库唯一须自具者。填满缓冲，不成则 raise；他物实现此约，即可接入，不必改本库一行。">The one thing you implement. Fill the buffer or raise; anything that keeps this contract plugs in without a line changed here.</div>
+        </div>
+        <div class="api__row" data-item="Replay">
+          <div class="api__sig">pub struct Replay<br>Replay::new(data : Bytes) -&gt; Self</div>
+          <div class="api__g" data-zh="依次发尽而止之源。由字节构造，不碰平台，故测试向量得以此回放。">A source that hands out what it was given, in order, then stops. Built from bytes alone, so test vectors replay through it.</div>
+        </div>
+        <div class="api__row" data-item="Replay::fill">
+          <div class="api__sig">Replay::fill(self, buf : FixedArray[Byte]) -&gt; Unit raise Unavailable</div>
+          <div class="api__g" data-zh="余量不足一填，则尽发所余而 raise Exhausted；一字节也不凭空生出。">When fewer bytes remain than the buffer wants, it gives every byte left and raises Exhausted. Not one byte is invented.</div>
+        </div>
+        <div class="api__row" data-item="Replay::remaining">
+          <div class="api__sig">Replay::remaining(self) -&gt; Int32</div>
+          <div class="api__g" data-zh="尚余几字节可发。向量对不上时，先问此数。">How many bytes are still to give. Ask this first when a vector does not match.</div>
+        </div>
+        <div class="api__row" data-item="Unavailable">
+          <div class="api__sig">pub(all) suberror Unavailable {<br>  Platform<br>  Exhausted<br>  Failed(String)<br>} derive(Eq, Debug) · impl Show</div>
+          <div class="api__g" data-zh="Platform 平台无源；Exhausted 回放已尽；Failed 自定来源之败，缘由原样陈于调用方。具 Eq、Show、Debug，故可比、可印、可记。">Platform: no source; Exhausted: the replay is spent; Failed: your source failed, and its reason reaches the caller unchanged. Eq, Show and Debug come with it.</div>
+        </div>
+        </div>
+        <div class="api__grp"><span>moonbitstack/moonseed/system</span><i>1 value · 2 types</i></div>
+        <div class="api__rows">
+        <div class="api__row" data-item="source">
+          <div class="api__sig">pub let source : System</div>
+          <div class="api__g" data-zh="平台之熵，全库唯一一处碰平台者。JS 取 crypto，wasm 取 WASI random_get，native 委诸运行时。">The platform's entropy — the one place this library touches the platform. crypto on JS, WASI random_get on wasm, the runtime on native.</div>
+        </div>
+        <div class="api__row" data-item="System">
+          <div class="api__sig">pub struct System {}</div>
+          <div class="api__g" data-zh="空记录，无一物可存：每次 fill 都重新问平台，不留缓存。">An empty record that holds nothing: every fill asks the platform again, and nothing is cached between them.</div>
+        </div>
+        <div class="api__row" data-item="System::fill">
+          <div class="api__sig">System::fill(self, buf : FixedArray[Byte]) -&gt; Unit raise Unavailable</div>
+          <div class="api__g" data-zh="一呼一应。取不足数或取之不得，则 raise Platform，不转向他处。">One call, one answer. Short or refused, it raises Platform and turns nowhere else.</div>
+        </div>
+        </div>
+        <!-- api:end -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 05 · 边界 ==================== -->
+<section class="sec" id="limits">
+  <div class="sheet">
+    <div class="sec__head">
+      <span class="sec__no">05</span>
+      <h2 class="sec__title" data-zh="界限">Limits</h2>
+      <p class="sec__note" data-zh="本非发生器，亦不以发生器自居。">It is not a generator, and does not pretend to be one.</p>
+    </div>
+
+    <div class="cols">
+      <div class="col">
+        <b>01</b>
+        <h3 data-zh="无种无流">No generator</h3>
+        <p data-zh="无种子，无流，亦无「一种子生一串数」之说。若求可复现之流，则用 &lt;em&gt;moonrand&lt;/em&gt;。二者分置，正使任何一方不能暗自代决。">No seed, no stream, no "same seed gives the same numbers". For a reproducible stream, use <em>moonrand</em>. Keeping these apart is what stops either from deciding for you.</p>
+      </div>
+      <div class="col">
+        <b>02</b>
+        <h3 data-zh="无熵则止">No WASI, no bytes</h3>
+        <p data-zh="根包不涉平台。链入 &lt;em&gt;system&lt;/em&gt;，即链入平台那一次调用。宿主若无 WASI，则用根包，自具 Source。">The root package touches no platform. Linking <em>system</em> links the platform's one call. A wasm host without WASI uses the root package and a source of its own.</p>
+      </div>
+      <div class="col">
+        <b>03</b>
+        <h3 data-zh="不重不延">No retry, no stretching</h3>
+        <p data-zh="一呼一应。是否重试、重试几度，皆调用方之策。所为者，搬运熵而已，非拉伸熵：32 字节不因之成 64 字节之密。">One call, one answer; whether to retry is the caller's policy. It moves entropy, it does not stretch it — 32 bytes do not become a 64-byte secret.</p>
+      </div>
+    </div>
+
+    <div class="face face--frost" style="margin-top:40px">
+      <span class="frost__bg" aria-hidden="true"></span>
+      <span class="frost__sheen" aria-hidden="true"></span>
+      <div class="frost__glass">
+        <span class="face__tag">frosted · partition</span>
+        <div class="lim">
+          <b data-zh="不留副本">It keeps no secret</b>
+          <p data-zh="自来源取字节，原样相付。缓冲归调用方，擦与不擦，悉听自便。本库不申请、不缓存、不留底。">It takes bytes from a source and hands them over. The buffer is yours to wipe or not; this crate does not allocate a cache or keep a copy.</p>
+        </div>
+        <div class="lim">
+          <b data-zh="不避时序">No side-channel story</b>
+          <p data-zh="拒绝之环，于时序留痕。若求恒定时间，则须由调用方将重抽之数压至可略，或另择取样之法。">The rejection loop leaves a timing trace. Constant time is the caller's problem: bound the retries, or sample differently.</p>
+        </div>
+        <div class="lim">
+          <b data-zh="不验平台">The platform is not verified</b>
+          <p data-zh="&lt;em&gt;@system.source&lt;/em&gt; 只陈平台所报，不察平台是否已破。根本之信，在操作系统一层，不在此处。">@system.source reports what the platform says. It does not judge whether the platform is compromised. That trust sits in the OS, not here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="sheet foot__in">
+    <div><span class="mono" data-zh="版本">rev</span><b id="rev-value">0.0.1</b></div>
+    <div><span class="mono" data-zh="许可">licence</span><b>Apache-2.0</b></div>
+    <div><span class="mono" data-zh="本页字节">bytes</span><b id="foot-seed">—</b></div>
+    <div class="foot__next"><span data-zh="另一层 · 可播种之流">the other layer · a seedable stream</span><span><a href="https://moonbitstack.github.io/moonrand/" id="mr-link">moonrand · ChaCha12</a></span></div>
+  </div>
+</footer>
+
+<script id="moonseed-wasm" type="application/wasm;base64">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AHAAcQByAHMAdAB1AHYAdwB4AHkAegBpAG4AdgBhAGwAaQBkACAAYwBvAGQAZQAgAHAAbwBpAG4AdABTAHQAcgBpAG4AZwBCAHUAaQBsAGQAZQByACAAYwBhAHAAYQBjAGkAdAB5ACAAbwB2AGUAcgBmAGwAbwB3AHMAaQB6AGUAXwBoAGkAbgB0ACAAbQB1AHMAdAAgAGIAZQAgAG4AbwBuAC0AbgBlAGcAYQB0AGkAdgBlACwAIABzAHIAYwAuAGwAZQBuAGcAdABoACAAPQAgACwAIABsAGUAbgAgAD0AIAAsACAAZABzAHQAXwBvAGYAZgBzAGUAdAAgAD0AIAAsACAAcwByAGMAXwBvAGYAZgBzAGUAdAAgAD0AIABiAG8AdQBuAGQAcwAgAGMAaABlAGMAawAgAGYAYQBpAGwAZQBkADoAIABhAGwAbABvAGMAYQB0AGUAXwBsAGUAbgAgAD0AIAABAAA0BG5hbWUALSxtb29uYml0c3RhY2svbW9vbnNlZWQvZXhhbXBsZXMvYnJvd3NlckAwLjAuMQBFCXByb2R1Y2VycwIIbGFuZ3VhZ2UBB01vb25CaXQADHByb2Nlc3NlZC1ieQEFbW9vbmMSdjAuMTAuMTgrNmM4M2E3ZjYy</script>
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     语言：英文为默认，中文按需切换
+     ============================================================ */
+  const I18N = (function(){
+    const nodes = Array.prototype.slice.call(document.querySelectorAll('[data-zh]'));
+    const orig = new Map();
+    nodes.forEach(function(el){ orig.set(el, el.innerHTML); });
+    let lang = 'en';
+    function apply(next){
+      lang = next;
+      nodes.forEach(function(el){
+        el.innerHTML = (next === 'zh') ? el.getAttribute('data-zh') : orig.get(el);
+      });
+      document.documentElement.lang = (next === 'zh') ? 'zh-Hans' : 'en-US';
+      document.body.setAttribute('data-lang', next);
+      document.title = (next === 'zh')
+        ? 'MoonSeed · 安全的随机字节，无偏的取样'
+        : 'moonseed — secure bytes, no seed';
+      document.querySelectorAll('#lang button').forEach(function(b){
+        b.classList.toggle('is-on', b.getAttribute('data-lang') === next);
+      });
+      const mr = document.getElementById('mr-link');
+      if (mr) mr.setAttribute('href', 'https://moonbitstack.github.io/moonrand/' + ((next === 'zh') ? '?lang=zh' : ''));
+    }
+    document.querySelectorAll('#lang button').forEach(function(b){
+      b.addEventListener('click', function(){ apply(b.getAttribute('data-lang')); });
+    });
+    if (new URLSearchParams(location.search).get('lang') === 'zh') apply('zh');
+    return { apply: apply, get: function(){ return lang; } };
+  })();
+
+  /* ============================================================
+     本页的字节：一次取足，交与 wasm 里的 Replay
+     —— 此后每一枚索引都由 @moonseed.below 抽出，页面自己不做算术
+     ============================================================ */
+  const POOL = 16384;
+  const pool = new Uint8Array(POOL);
+
+  function gather(){
+    if (window.crypto && crypto.getRandomValues){
+      for (let o = 0; o < POOL; o += 65536){
+        crypto.getRandomValues(pool.subarray(o, Math.min(o + 65536, POOL)));
+      }
+    } else {
+      for (let i = 0; i < POOL; i++) pool[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  gather();
+
+  function hexOf(buf, n){
+    let s = "";
+    for (let i = 0; i < n; i++) s += buf[i].toString(16).padStart(2, "0");
+    return s;
+  }
+
+  document.getElementById("foot-seed").textContent = "0x" + hexOf(pool, 12);
+  document.getElementById("st-taken").textContent = String(POOL);
+
+  /* 只在 wasm 起不来时接手 */
+  function splitmix32(a){
+    return function(){
+      a |= 0; a = a + 0x9E3779B9 | 0;
+      let t = a ^ a >>> 16;
+      t = Math.imul(t, 0x21F0AAAD);
+      t = t ^ t >>> 15;
+      t = Math.imul(t, 0x735A2D97);
+      return ((t = t ^ t >>> 15) >>> 0) / 4294967296;
+    };
+  }
+
+  let seed32 = 0;
+  for (let i = 0; i < 4; i++) seed32 = ((seed32 << 8) | pool[i]) >>> 0;
+
+  let rnd = splitmix32(seed32);
+  let engine = null;
+  const engineEl = document.getElementById("st-engine");
+
+  function decodeBase64(b64){
+    const s = atob(b64.trim());
+    const out = new Uint8Array(s.length);
+    for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+    return out;
+  }
+
+  /* ============================================================
+     云母：一片一片的薄鳞，会反光
+     ============================================================ */
+  function micaTexture(){
+    const r = rnd;
+    let s = '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><rect width="240" height="240" fill="#E9EDE7"/>';
+    for (let i = 0; i < 120; i++){
+      const x = (r() * 250 - 5).toFixed(1), y = (r() * 250 - 5).toFixed(1);
+      const w = (9 + r() * 30).toFixed(1), h = (0.8 + r() * 1.2).toFixed(1);
+      const a = (r() * 180).toFixed(0), o = (0.04 + r() * 0.15).toFixed(2);
+      const c = r() > 0.38 ? "#FFFFFF" : "#8D9A90";
+      s += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h +
+           '" fill="' + c + '" opacity="' + o + '" transform="rotate(' + a + ' ' + x + ' ' + y + ')"/>';
+    }
+    return 'url("data:image/svg+xml,' + encodeURIComponent(s + "</svg>") + '")';
+  }
+
+  /* ============================================================
+     开片
+     ============================================================ */
+  const W = 360, H = 360;
+  let cracked = false;
+
+  function clipHalf(poly, nx, ny, c){
+    const out = [], n = poly.length;
+    for (let i = 0; i < n; i++){
+      const a = poly[i], b = poly[(i + 1) % n];
+      const da = nx * a[0] + ny * a[1] - c;
+      const db = nx * b[0] + ny * b[1] - c;
+      if (da <= 0) out.push(a);
+      if ((da < 0 && db > 0) || (da > 0 && db < 0)){
+        const t = da / (da - db);
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      }
+    }
+    return out;
+  }
+
+  /* 每格 = 离自己核最近的那片区域；核按格网撒，位置由流决定 */
+  function voronoiCells(rand){
+    const G = 7, sites = [];
+    for (let gy = 0; gy < G; gy++){
+      for (let gx = 0; gx < G; gx++){
+        sites.push([
+          (gx + 0.5 + (rand() - 0.5) * 0.86) * W / G,
+          (gy + 0.5 + (rand() - 0.5) * 0.86) * H / G
+        ]);
+      }
+    }
+    for (let k = 0; k < 30; k++) sites.push([rand() * W, rand() * H]);
+
+    const snap = v => Math.round(v * 10) / 10;
+    const cells = [];
+    for (let i = 0; i < sites.length; i++){
+      let poly = [[0, 0], [W, 0], [W, H], [0, H]];
+      const si = sites[i];
+      for (let j = 0; j < sites.length && poly.length; j++){
+        if (j === i) continue;
+        const sj = sites[j];
+        poly = clipHalf(
+          poly,
+          2 * (sj[0] - si[0]), 2 * (sj[1] - si[1]),
+          sj[0] * sj[0] + sj[1] * sj[1] - si[0] * si[0] - si[1] * si[1]
+        );
+      }
+      const s = poly.map(p => [snap(p[0]), snap(p[1])]);
+      if (s.length >= 3) cells.push(s);
+    }
+    return cells;
+  }
+
+  function collectEdges(cells){
+    const map = new Map();
+    for (const poly of cells){
+      for (let i = 0; i < poly.length; i++){
+        const a = poly[i], b = poly[(i + 1) % poly.length];
+        if (a[0] === b[0] && a[1] === b[1]) continue;
+        const ka = a[0] + "," + a[1], kb = b[0] + "," + b[1];
+        const key = ka < kb ? ka + "|" + kb : kb + "|" + ka;
+        if (!map.has(key)) map.set(key, [a, b]);
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  /* 只抖中间点，端点不动——否则三线交汇处会裂开。bias 让它朝外鼓 */
+  function jagged(a, b, rand, bias){
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const L = Math.hypot(dx, dy) || 1;
+    const px = -dy / L, py = dx / L;
+    const amp = Math.min(1.9, L * 0.11);
+    const pts = [a];
+    for (let t = 1; t <= 2; t++){
+      const u = t / 3;
+      const o = (rand() - 0.5) * amp + (bias || 0) * amp * (t === 1 ? 0.42 : 0.3);
+      pts.push([a[0] + dx * u + px * o, a[1] + dy * u + py * o]);
+    }
+    pts.push(b);
+    return pts;
+  }
+
+  function toPath(pts){
+    let d = "M" + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1);
+    for (let i = 1; i < pts.length; i++){
+      d += "L" + pts[i][0].toFixed(1) + " " + pts[i][1].toFixed(1);
+    }
+    return d;
+  }
+
+  function makeCrack(ev){
+    if (cracked) return;
+    cracked = true;
+
+    const tile = document.getElementById("gtile");
+    const svg  = document.getElementById("crack");
+    const rect = tile.getBoundingClientRect();
+
+    /* 落点。整张网由这一页的 16 个字节算出，换位置点，网还是这张网，
+       只是裂从你按下的那一点开始，一格一格往外走。 */
+    const ox = Math.max(8, Math.min(W - 8, (ev.clientX - rect.left) / rect.width  * W));
+    const oy = Math.max(8, Math.min(H - 8, (ev.clientY - rect.top)  / rect.height * H));
+
+    const NS = "http://www.w3.org/2000/svg";
+    const SPEED = 1.2;          /* px / ms，裂缝往外走的速度 */
+    const JAG   = 0.22;         /* 朝外鼓的幅度 */
+
+    const cells = voronoiCells(rnd);
+    const edges = collectEdges(cells);
+    const fills = [];
+    const items = [];
+
+    function el(tag, attrs){
+      const e = document.createElementNS(NS, tag);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    /* 第一层：每一格釉面自己有一点点深浅。碎片不是同一块平面 */
+    const gFill = el("g", {});
+    svg.appendChild(gFill);
+    cells.forEach(function(poly){
+      let d = "M" + poly[0][0].toFixed(1) + " " + poly[0][1].toFixed(1);
+      let cx = 0, cy = 0;
+      for (let i = 1; i < poly.length; i++){
+        d += "L" + poly[i][0].toFixed(1) + " " + poly[i][1].toFixed(1);
+      }
+      d += "Z";
+      for (let i = 0; i < poly.length; i++){ cx += poly[i][0]; cy += poly[i][1]; }
+      cx /= poly.length; cy /= poly.length;
+
+      const light = rnd() > 0.46;
+      const a = (light ? 0.030 : 0.026) + rnd() * 0.040;
+      const p = el("path", {
+        d: d,
+        fill: light ? "rgba(255,255,255," + a.toFixed(3) + ")" : "rgba(36,68,62," + a.toFixed(3) + ")",
+        stroke: "none",
+        opacity: "0"
+      });
+      gFill.appendChild(p);
+      const dist = Math.hypot(cx - ox, cy - oy) / SPEED;
+      fills.push({ el: p, delay: dist, dur: 220 });
+    });
+
+    /* 第二层：裂缝本身 */
+    const gLine = el("g", {});
+    svg.appendChild(gLine);
+
+    function stroke(d, style){
+      const p = el("path", {
+        d: d,
+        fill: "none",
+        stroke: style.color,
+        "stroke-width": style.w,
+        "stroke-linejoin": "round",
+        "stroke-linecap": "round"
+      });
+      gLine.appendChild(p);
+      return p;
+    }
+
+    edges.forEach(function(e){
+      const d0 = Math.hypot(e[0][0] - ox, e[0][1] - oy);
+      const d1 = Math.hypot(e[1][0] - ox, e[1][1] - oy);
+      const near = d0 <= d1 ? e[0] : e[1];
+      const far  = d0 <= d1 ? e[1] : e[0];
+
+      const midx = (near[0] + far[0]) / 2 - ox;
+      const midy = (near[1] + far[1]) / 2 - oy;
+      const dx = far[0] - near[0], dy = far[1] - near[1];
+      const L = Math.hypot(dx, dy) || 1;
+      const bias = ((midx * -dy + midy * dx) / L) >= 0 ? JAG : -JAG;
+
+      const d = toPath(jagged(near, far, rnd, bias));
+      const delay = Math.min(d0, d1) / SPEED + rnd() * 16;
+      const dur = Math.min(170, Math.max(55, L * 0.9));
+
+      /* 越靠近落点，线越重；往外走，线越淡 */
+      const w = Math.min(1, Math.min(d0, d1) / (W * 0.66));
+      const core = stroke(d, {
+        color: "rgba(46,68,60," + (0.72 - 0.18 * w + rnd() * 0.07).toFixed(2) + ")",
+        w: (1.08 - 0.22 * w + rnd() * 0.10).toFixed(2)
+      });
+      items.push({ el: core, delay: delay, dur: dur });
+    });
+
+    tile.classList.add("is-quaked");
+    setTimeout(function(){ tile.classList.remove("is-quaked"); }, 280);
+
+    requestAnimationFrame(function(){
+      fills.forEach(function(it){
+        it.el.style.transition = "opacity " + it.dur + "ms linear " + it.delay + "ms";
+        it.el.setAttribute("opacity", "1");
+      });
+      items.forEach(function(it){
+        let len = 240;
+        try { len = it.el.getTotalLength() || 240; } catch (e){}
+        it.el.style.strokeDasharray  = len + " " + len;
+        it.el.style.strokeDashoffset = len;
+        it.el.style.transition = "stroke-dashoffset " + it.dur + "ms cubic-bezier(.25,.75,.4,1) " + it.delay + "ms";
+        void it.el.getBoundingClientRect();
+        it.el.style.strokeDashoffset = "0";
+        setTimeout(function(){ it.el.style.strokeDasharray = "none"; }, it.delay + it.dur + 40);
+      });
+    });
+
+    tile.classList.add("is-cracked");
+    document.getElementById("st-count").textContent = String(cells.length);
+  }
+
+  /* ============================================================
+     直方图：同一串字节，below 与取模各数一遍
+     ============================================================ */
+  function paintHist(){
+    const svg = document.getElementById("hist-svg");
+    if (!svg) return;
+    const BINS = 20, TRIALS = 2000, UPPER = 200;
+    const below = [], mod = [];
+    if (engine){
+      for (let i = 0; i < BINS; i++){
+        below.push(engine.below_hits(UPPER, TRIALS, i, BINS));
+        mod.push(engine.mod_hits(UPPER, TRIALS, i, BINS));
+      }
+    } else {
+      for (let i = 0; i < BINS; i++){ below.push(TRIALS / BINS); mod.push(TRIALS / BINS); }
+    }
+
+    const W = 760, H = 190, top = 14, base = H - 26;
+    const max = Math.max.apply(null, below.concat(mod)) * 1.12 || 1;
+    const slot = (W - 24) / BINS, bw = slot * 0.30;
+    let out = "";
+    for (let i = 0; i < BINS; i++){
+      const x = 6 + i * slot;
+      const hb = (below[i] / max) * (base - top);
+      const hm = (mod[i] / max) * (base - top);
+      out += '<rect x="' + (x + slot * 0.12) + '" y="' + (base - hb) + '" width="' + bw +
+        '" height="' + Math.max(hb, .5) + '" fill="#2E5F52" opacity=".82"/>';
+      out += '<rect x="' + (x + slot * 0.12 + bw + 1.5) + '" y="' + (base - hm) + '" width="' + bw +
+        '" height="' + Math.max(hm, .5) + '" fill="#B04A38" opacity=".46"/>';
+      if (i % 5 === 0){
+        out += '<text x="' + (x + slot * 0.12) + '" y="' + (base + 13) + '" font-size="9" ' +
+          'font-family="ui-monospace,monospace" fill="#7A8A84">' + (i * (UPPER / BINS)) + '</text>';
+      }
+    }
+    out += '<line x1="6" y1="' + base + '" x2="' + (W - 6) + '" y2="' + base +
+      '" stroke="#23477F" stroke-opacity=".28" stroke-width="1"/>';
+    out += '<line x1="6" y1="' + top + '" x2="' + (W - 6) + '" y2="' + top +
+      '" stroke="#23477F" stroke-opacity=".10" stroke-width="1" stroke-dasharray="3 3"/>';
+    svg.innerHTML = out;
+  }
+
+  /* ============================================================
+     把这一页画出来
+     ============================================================ */
+  function paintAll(){
+    const mica = document.querySelector(".face--mica");
+    if (mica) mica.style.backgroundImage = micaTexture() + ", linear-gradient(160deg,#F2F5F0,#D8DFD8)";
+    const gt = document.getElementById("gtile");
+    if (gt) gt.addEventListener("click", makeCrack);
+  }
+
+  /* ============================================================
+     打开流：编译成 wasm-gc 的本库
+     —— 页面交字节，Replay 收着，below 抽出每一枚
+     ============================================================ */
+  async function engineBytes(){
+    try {
+      const res = await fetch("engine/moonseed.wasm");
+      if (res.ok) return new Uint8Array(await res.arrayBuffer());
+    } catch (e){ /* file:// 落回页内那一份 */ }
+    return decodeBase64(document.getElementById("moonseed-wasm").textContent);
+  }
+
+  (async function boot(){
+    try {
+      const bytes = await engineBytes();
+      const mod = await WebAssembly.instantiate(bytes, {});
+      const ex = mod.instance.exports;
+      ex._start();
+      ex.reset();
+      for (let i = 0; i < POOL; i++) ex.push(pool[i]);
+      if (!ex.open()) throw new Error("the replay took no bytes");
+      engine = ex;
+      rnd = function(){ return ex.unit(); };
+      if (engineEl) engineEl.textContent = "below · wasm-gc";
+    } catch (err){
+      if (engineEl) engineEl.textContent = "splitmix32 · 兜底";
+      console.warn("moonseed.wasm unavailable:", err);
+    }
+    paintAll();
+    paintHist();
+  })();
+})();
+</script>
+</body>
+</html>

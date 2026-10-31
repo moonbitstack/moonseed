@@ -1,0 +1,26 @@
+// The page's door into the library: the crate compiled to wasm-gc, with a few
+// functions exported to JavaScript. The page pushes the bytes it gathered into
+// a `Replay`, draws its tile through `below`, and counts the same replay twice
+// for the plots. A wasm-gc host has no `random_get`, so the platform source is
+// not part of this package.
+pkgtype(kind: "executable")
+
+import {
+  "moonbitstack/moonseed",
+}
+
+options(
+  link: {
+    "wasm-gc": {
+      "exports": [
+        "reset",
+        "push",
+        "taken",
+        "open",
+        "unit",
+        "below_hits",
+        "mod_hits",
+      ],
+    },
+  },
+)
