@@ -370,6 +370,7 @@ body[data-lang="zh"] .wm{ letter-spacing:.03em; padding:.18em 0 }
 .sec__no{
   font-family:var(--mono); font-size:10px; letter-spacing:.22em; color:var(--cinnabar);
 }
+.sec__plate{ display:flex; align-items:baseline; gap:16px }
 .sec__title{
   font-family:var(--serif); font-weight:500; font-size:26px; letter-spacing:.14em;
 }
@@ -390,33 +391,47 @@ body[data-lang="zh"] .prose em{ text-indent:0 }
   margin-left:auto; max-width:26em;
   font-size:12px; line-height:1.95; color:var(--ink-3); text-align:right;
 }
-/* ---------- 中文小标题的字体装饰 · 回纹 ----------
-   二字题（章节）作一条题签，题后引一段回纹，右端渐隐；
-   四字题（条目）起首一枚回纹，后接一道渐隐的引线。 */
-body[data-lang="zh"] .sec__title{
-  position:relative; line-height:1.32;
-  padding:5px 16px 6px 13px;
-  letter-spacing:.30em;
+/* ---------- 中文小标题 · 一块小瓷片 ----------
+   章次与题名同处一瓷，中隔一点；瓷上只取对角两枚回纹，
+   各引一道半长的线，右下那枚倒转过来，像瓷片上的两处铜角。 */
+body[data-lang="zh"] .sec__plate{
+  position:relative; display:inline-flex; align-items:baseline; justify-content:center; gap:0;
+  padding:8px 25px 8px;
   color:#1A2220;
-  background:linear-gradient(180deg, rgba(255,255,255,.74), rgba(244,249,247,.16));
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Cpath d='M12.5 12.5H.5V.5H12.5V8H4V3.5H8.5' fill='none' stroke='%2323477F' stroke-width='.85'/%3E%3C/svg%3E") left 3px top 3px / 13px 13px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Cg transform='translate(13,13) rotate(180)'%3E%3Cpath d='M12.5 12.5H.5V.5H12.5V8H4V3.5H8.5' fill='none' stroke='%2323477F' stroke-width='.85'/%3E%3C/g%3E%3C/svg%3E") right 3px bottom 3px / 13px 13px no-repeat,
+    linear-gradient(rgba(35,71,127,.32),rgba(35,71,127,.32)) left 18px top 9.5px / 24px .5px no-repeat,
+    linear-gradient(rgba(35,71,127,.32),rgba(35,71,127,.32)) right 18px bottom 9.5px / 24px .5px no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.74), rgba(244,249,247,.16));
   box-shadow:
     inset 0 0 0 .5px rgba(35,71,127,.30),
     inset 0 1px 0 rgba(255,255,255,.92),
     0 1px 0 rgba(48,68,60,.05);
-  text-shadow:0 1px 0 rgba(255,255,255,.92), 0 -.5px 0 rgba(35,71,127,.13);
 }
 /* 文武边：外一线，内一线，相距二 */
-body[data-lang="zh"] .sec__title::before{
+body[data-lang="zh"] .sec__plate::before{
   content:''; position:absolute; inset:2px; pointer-events:none;
   box-shadow:inset 0 0 0 .5px rgba(35,71,127,.15);
 }
-body[data-lang="zh"] .sec__title::after{
-  content:''; position:absolute; left:calc(100% + 14px); top:50%;
-  width:76px; height:13px; margin-top:-6.5px;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='19' height='13' viewBox='0 0 19 13'%3E%3Cpath d='M12.5 12.5H.5V.5H12.5V8H4V3.5H8.5' fill='none' stroke='%2323477F' stroke-width='.85'/%3E%3C/svg%3E");
-  background-repeat:repeat-x; background-size:19px 13px;
-  opacity:.44; pointer-events:none;
+/* 章次：一枚小朱印，随题同在瓷上 */
+body[data-lang="zh"] .sec__no{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:18px; height:18px; line-height:1;
+  font-family:var(--serif); font-size:11px; letter-spacing:0;
+  color:#9E4030;
+  box-shadow:inset 0 0 0 .5px rgba(158,64,48,.44);
+  background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,242,240,.10));
+  margin-right:.60em;
+  transform:translateY(-1px);
 }
+/* 题名：只写字，不再自带底子 */
+body[data-lang="zh"] .sec__title{
+  font-size:24px; line-height:1.34; letter-spacing:.24em; margin-right:-.48em;
+  padding:0; background:none; box-shadow:none;
+  text-shadow:0 1px 0 rgba(255,255,255,.92), 0 -.5px 0 rgba(35,71,127,.13);
+}
+/* 章次与题名之间不再加点：一道细线已足 */
 
 body[data-lang="zh"] .col h3,
 body[data-lang="zh"] .lim b{ letter-spacing:.16em }
@@ -463,6 +478,47 @@ body[data-lang="zh"] .lim b::after{
 .code .c{ color:rgba(44,51,53,.42) }
 .code--on{ box-shadow:inset 0 0 0 .5px rgba(35,71,127,.10), inset 0 1px 0 rgba(255,255,255,.9) }
 
+/* 代码横过界时，不画横杆——杆会把瓷切一刀；改在右上角嵌一颗滚珠，
+   上下拖动，即左右看字。珠有釉、有圈、有影，和瓷片是同一窑的。 */
+.code{ scrollbar-width:none; -ms-overflow-style:none }
+.code::-webkit-scrollbar{ display:none; width:0; height:0 }
+.beadrail{
+  position:absolute; right:14px; top:48px; bottom:20px; width:.5px; z-index:2;
+  background:linear-gradient(180deg, rgba(35,71,127,0), rgba(35,71,127,.34) 8%,
+    rgba(35,71,127,.34) 92%, rgba(35,71,127,0));
+  box-shadow:.5px 0 0 rgba(255,255,255,.55);
+  pointer-events:none;
+}
+.bead{
+  position:absolute; right:3px; top:48px; z-index:3;
+  width:24px; height:24px; border-radius:50%; padding:0; border:0;
+  background:
+    radial-gradient(58% 52% at 34% 26%, rgba(255,255,255,.96), rgba(255,255,255,0) 72%),
+    linear-gradient(150deg,#CEE4DB,#9FC0B4 54%,#6E968A);
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.95),
+    inset 0 1px 1px rgba(255,255,255,.55),
+    inset 0 -2px 3px rgba(28,58,50,.42),
+    0 0 0 .5px rgba(35,71,127,.38),
+    0 3px 6px -2px rgba(30,55,48,.55);
+  cursor:ns-resize; touch-action:none;
+  transition:box-shadow .12s linear, filter .12s linear;
+}
+.bead::after{
+  content:''; position:absolute; inset:5px; border-radius:50%;
+  box-shadow:inset 0 0 0 .5px rgba(35,71,127,.26);
+}
+/* 代码块自己就是底子时（不在瓷面上），珠移到外侧 */
+.bead--out{ right:-12px }
+.beadrail--out{ right:0 }
+.bead:hover{ filter:brightness(1.03); box-shadow:
+  inset 0 0 0 .5px rgba(255,255,255,.96),
+  inset 0 -1.5px 2px rgba(36,68,60,.32),
+  0 0 0 .5px rgba(35,71,127,.30),
+  0 2px 7px -2px rgba(40,70,60,.55); }
+.bead.is-live{ cursor:grabbing }
+.bead:focus-visible{ outline:.5px solid var(--cobalt); outline-offset:3px }
+
 /* ============================================================
    面：四种材质，四种承重
    —— 每一块都是一个 div，里面装的是这个库的东西，不是瓷的说明
@@ -495,6 +551,10 @@ body[data-lang="zh"] .lim b::after{
     inset 0 0 26px 8px rgba(46,80,70,.10),
     0 1px 0 rgba(48,68,60,.20),
     0 12px 26px -20px rgba(40,70,60,.6);
+}
+.face .code{
+  -webkit-mask-image:linear-gradient(90deg, #000 0, #000 86%, rgba(0,0,0,.06) 100%);
+  mask-image:linear-gradient(90deg, #000 0, #000 86%, rgba(0,0,0,.06) 100%);
 }
 .face--celadon .code{
   background:none; box-shadow:none; padding:2px 0 2px 20px;
@@ -599,15 +659,64 @@ body[data-lang="zh"] .lim b::after{
   text-indent:-1.1em; padding-left:1.1em }
 .api__g{ font-size:12.5px; line-height:1.8; color:rgba(230,238,248,.74) }
 
-/* 直方图：同一串字节，两种取法 */
-.hist{ margin:44px 0 0 }
-.hist__head{ display:flex; align-items:baseline; justify-content:space-between; gap:20px;
-  padding-bottom:9px; border-bottom:.5px solid var(--line-soft) }
-.hist__head b{ font-family:var(--mono); font-size:10px; font-weight:400;
-  letter-spacing:.16em; text-transform:uppercase; color:var(--cobalt) }
-.hist__head span{ font-size:11.5px; letter-spacing:.04em; color:var(--ink-3) }
-#hist-svg{ display:block; width:100%; height:190px; margin-top:14px }
-.hist__foot{ margin-top:10px; font-size:11.5px; line-height:1.9; color:var(--ink-3) }
+/* 直方图：一块月白釉的小瓷片，青花与釉里红都在釉下 */
+.shard{ margin:46px 0 0 }
+.shard__face{
+  position:relative; overflow:hidden;
+  padding:24px 26px 20px;
+  background:
+    radial-gradient(96% 76% at 16% 2%, rgba(255,255,255,.96), rgba(255,255,255,0) 60%),
+    radial-gradient(72% 60% at 92% 104%, rgba(176,204,194,.34), transparent 68%),
+    radial-gradient(124% 128% at 50% 48%, rgba(46,80,70,0) 58%, rgba(46,80,70,.075) 100%),
+    linear-gradient(156deg,#FCFDF9 0%,#F4F7F1 40%,#E9F0E9 74%,#DFE9E1 100%);
+  box-shadow:
+    inset 0 0 0 .5px rgba(255,255,255,.92),
+    inset 0 1.5px 0 #FFFFFF,
+    inset 0 -2.5px 0 rgba(54,86,76,.30),
+    inset 0 0 34px 12px rgba(46,80,70,.075),
+    0 0 0 .5px rgba(35,71,127,.18),
+    0 1px 0 rgba(48,68,60,.20),
+    0 14px 30px -22px rgba(40,70,60,.60);
+}
+/* 文武边：一线内框，与题签同一个做法 */
+.shard__face::after{
+  content:''; position:absolute; inset:7px; pointer-events:none;
+  box-shadow:inset 0 0 0 .5px rgba(35,71,127,.09);
+}
+.shard__cracks{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none }
+.shard__head{
+  position:relative; display:flex; align-items:baseline; justify-content:space-between;
+  gap:14px 22px; flex-wrap:wrap; padding-bottom:11px;
+  border-bottom:.5px solid rgba(35,71,127,.14);
+}
+.shard__head b{
+  font-family:var(--mono); font-size:9.5px; font-weight:400;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--cobalt);
+}
+.shard__key{ display:inline-flex; align-items:center; gap:7px; flex-wrap:wrap }
+.shard__key em{
+  font-style:normal; font-family:var(--mono); font-size:9px; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--ink-3); margin-right:9px;
+}
+.chip{ display:block; width:9px; height:9px;
+  box-shadow:inset 0 0 0 .5px rgba(35,71,127,.22), 0 .5px 0 rgba(48,68,60,.14) }
+.chip--blue{ background:linear-gradient(180deg,#35639F,#1A3461) }
+.chip--red{ background:linear-gradient(180deg,#B8533F,#8E3627) }
+.chip--rule{
+  height:1px; background:repeating-linear-gradient(90deg,#23477F 0 2px,transparent 2px 5px);
+  box-shadow:none; opacity:.55;
+}
+#hist-svg{ position:relative; display:block; width:100%; height:200px; margin-top:12px }
+.shard__foot{
+  position:relative; display:flex; align-items:baseline; gap:18px;
+  margin-top:10px; padding-top:10px; border-top:.5px solid rgba(35,71,127,.12);
+}
+.shard__foot > span:first-child{ flex:1 1 auto; font-size:11.5px; line-height:1.9; color:var(--ink-3) }
+body[data-lang="zh"] .shard__key em{
+  font-family:var(--serif); font-size:10px; letter-spacing:.14em; text-transform:none;
+}
+.shard__foot .face__tag{ position:static; flex:0 0 auto; white-space:nowrap;
+  color:rgba(35,71,127,.34) }
 
 /* 三条保证 */
 .cols{ display:grid; grid-template-columns:repeat(3,1fr); gap:40px; margin-top:8px }
@@ -663,6 +772,8 @@ body[data-lang="zh"] .lim b::after{
   .stage__cap{ grid-template-columns:1fr 1fr }
   .face--celadon, .face--mica, .face--cobalt{ padding:24px 20px 26px }
   .frost__glass{ padding:24px 20px 26px }
+  .shard__face{ padding:20px 16px 16px }
+  #hist-svg{ height:170px }
   .api__row, .src{ grid-template-columns:1fr; gap:5px }
   .lim{ grid-template-columns:1fr; gap:5px }
   .sec{ padding:54px 0 }
@@ -710,8 +821,9 @@ body[data-lang="zh"] .lim b::after{
     </div>
 
     <div class="stage">
-      <p class="stage__note" data-zh="此瓷由本页所取之字节、经 below 抽取而绘成。按之即裂。">
-        This tile was drawn from the bytes this page took, through below. Press it and the net breaks.
+      <p class="stage__note" data-zh="此瓷由本页所取之字节、经 below 抽取而绘成；画瓷的，是本库编译成 wasm 的那一份。按之即裂。">
+        This tile was drawn from the bytes this page took, through below — by this library,
+        compiled to wasm. Press it and the net breaks.
       </p>
       <button class="gtile" id="gtile" type="button" aria-label="glazed tile, press to crack">
         <span class="gtile__grain"></span>
@@ -723,7 +835,7 @@ body[data-lang="zh"] .lim b::after{
       <div class="stage__cap">
         <div><span data-zh="所取字节">bytes taken</span><b><span id="st-taken">—</span> · browser</b></div>
         <div><span data-zh="来源">source</span><b>Replay</b></div>
-        <div><span data-zh="取样">sampling</span><b id="st-engine">below · wasm-gc</b></div>
+        <div><span data-zh="取样">sampling</span><b id="st-engine">below · wasm</b></div>
         <div><span data-zh="碎片">shards</span><b id="st-count">—</b></div>
       </div>
     </div>
@@ -734,8 +846,10 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="source" style="margin-top:56px">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no" data-zh="一">01</span>
-      <h2 class="sec__title" data-zh="来源">Source</h2>
+      <div class="sec__plate">
+        <span class="sec__no" data-zh="一">01</span>
+        <h2 class="sec__title" data-zh="来源">Source</h2>
+      </div>
       <p class="sec__note" data-zh="一法而已，填满缓冲；字节所自，由调用方定。">One method, fills the buffer. Who fills it is the caller's business.</p>
     </div>
 
@@ -778,8 +892,10 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="start">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no" data-zh="二">02</span>
-      <h2 class="sec__title" data-zh="起笔">Start</h2>
+      <div class="sec__plate">
+        <span class="sec__no" data-zh="二">02</span>
+        <h2 class="sec__title" data-zh="起笔">Start</h2>
+      </div>
       <p class="sec__note" data-zh="三行足矣。无初始化，无全局状态，无须先造发生器。">Three lines. No init, no global state, no generator to construct first.</p>
     </div>
 
@@ -824,8 +940,10 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="sample">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no" data-zh="三">03</span>
-      <h2 class="sec__title" data-zh="取样">Sampling</h2>
+      <div class="sec__plate">
+        <span class="sec__no" data-zh="三">03</span>
+        <h2 class="sec__title" data-zh="取样">Sampling</h2>
+      </div>
       <p class="sec__note" data-zh="用拒绝法，不用取模。因取模则小者偏多，故此函数舍之。">Rejection, not modulo. Modulo favours the small values; not doing that is why this function exists.</p>
     </div>
 
@@ -867,15 +985,23 @@ body[data-lang="zh"] .lim b::after{
       </div>
     </div>
 
-    <figure class="hist">
-      <div class="hist__head">
-        <b data-zh="二百之界，二十桶">bound 200 · twenty buckets</b>
-        <span data-zh="同一串字节，二千抽：青为 below，赭为取模">one replay, two thousand draws: below in celadon, modulo in rouge</span>
-      </div>
-      <svg id="hist-svg" viewBox="0 0 760 190" preserveAspectRatio="none" role="img"
-           aria-label="counts per bucket, below against modulo"></svg>
-      <div class="hist__foot">
-        <span data-zh="等概则每桶整百，即二千除以二十。取模者前六桶见厚，余者见薄，其偏可见。">Equal odds put a hundred in every bucket, two thousand over twenty. The modulo bars run thick at the low end and thin at the high, and the tilt is plain to see.</span>
+    <figure class="shard">
+      <div class="shard__face">
+        <svg class="shard__cracks" id="shard-cracks" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div class="shard__head">
+          <b data-zh="二百之界，二十桶">bound 200 · twenty buckets</b>
+          <span class="shard__key">
+            <i class="chip chip--blue"></i><em data-zh="青花 · below">cobalt · below</em>
+            <i class="chip chip--red"></i><em data-zh="釉里红 · 取模">copper-red · modulo</em>
+            <i class="chip chip--rule"></i><em data-zh="等概 · 一百">expected · one hundred</em>
+          </span>
+        </div>
+        <svg id="hist-svg" viewBox="0 0 760 200" preserveAspectRatio="none" role="img"
+             aria-label="counts per bucket, below against modulo"></svg>
+        <div class="shard__foot">
+          <span data-zh="等概则每桶整百，即二千除以二十。取模者前六桶见厚，余者见薄，其偏可见。">Equal odds put a hundred in every bucket, two thousand over twenty. The modulo bars run thick at the low end and thin at the high, and the tilt is plain to see.</span>
+          <span class="face__tag" data-zh="月白 · 计数">moon-white · tally</span>
+        </div>
       </div>
     </figure>
   </div>
@@ -885,8 +1011,10 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="api">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no" data-zh="四">04</span>
-      <h2 class="sec__title" data-zh="接口">API</h2>
+      <div class="sec__plate">
+        <span class="sec__no" data-zh="四">04</span>
+        <h2 class="sec__title" data-zh="接口">API</h2>
+      </div>
       <p class="sec__note" data-zh="全部公开项，按包分列，无一遗漏。">Every public item, package by package. Nothing left out.</p>
     </div>
 
@@ -954,8 +1082,10 @@ body[data-lang="zh"] .lim b::after{
 <section class="sec" id="limits">
   <div class="sheet">
     <div class="sec__head">
-      <span class="sec__no" data-zh="五">05</span>
-      <h2 class="sec__title" data-zh="界限">Limits</h2>
+      <div class="sec__plate">
+        <span class="sec__no" data-zh="五">05</span>
+        <h2 class="sec__title" data-zh="界限">Limits</h2>
+      </div>
       <p class="sec__note" data-zh="本非发生器，亦不以发生器自居。">It is not a generator, and does not pretend to be one.</p>
     </div>
 
@@ -1008,7 +1138,7 @@ body[data-lang="zh"] .lim b::after{
   </div>
 </footer>
 
-<script id="moonseed-wasm" type="application/wasm;base64">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AHAAcQByAHMAdAB1AHYAdwB4AHkAegBpAG4AdgBhAGwAaQBkACAAYwBvAGQAZQAgAHAAbwBpAG4AdABTAHQAcgBpAG4AZwBCAHUAaQBsAGQAZQByACAAYwBhAHAAYQBjAGkAdAB5ACAAbwB2AGUAcgBmAGwAbwB3AHMAaQB6AGUAXwBoAGkAbgB0ACAAbQB1AHMAdAAgAGIAZQAgAG4AbwBuAC0AbgBlAGcAYQB0AGkAdgBlACwAIABzAHIAYwAuAGwAZQBuAGcAdABoACAAPQAgACwAIABsAGUAbgAgAD0AIAAsACAAZABzAHQAXwBvAGYAZgBzAGUAdAAgAD0AIAAsACAAcwByAGMAXwBvAGYAZgBzAGUAdAAgAD0AIABiAG8AdQBuAGQAcwAgAGMAaABlAGMAawAgAGYAYQBpAGwAZQBkADoAIABhAGwAbABvAGMAYQB0AGUAXwBsAGUAbgAgAD0AIAABAAA0BG5hbWUALSxtb29uYml0c3RhY2svbW9vbnNlZWQvZXhhbXBsZXMvYnJvd3NlckAwLjAuMQBFCXByb2R1Y2VycwIIbGFuZ3VhZ2UBB01vb25CaXQADHByb2Nlc3NlZC1ieQEFbW9vbmMSdjAuMTAuMTgrNmM4M2E3ZjYy</script>
+<script id="moonseed-wasm" type="application/wasm;base64">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ACIFQdjVABDbABogBSABEOYAGiAFQbDVABDbABogBSADEOYAGiAFQYjVABDbABogBSAEEOYAGiAFQejUABDbABogBSACEOYAGiAFQcDUABDbABogABATIAAQJiEKIAUgChDmABogBRDiACAFECYiCRAsAAsL3AEBBn8gAUEATgR/IAJBAE4EfyADQQBOBH8gBEEATgR/IAMgAmohByAAEBMhCCAHIAhMBH8gBCACaiIGIAFMBUEACwVBAAsFQQALBUEACwVBAAsEfyABQQAgACADIAQgAhAcBUHZABDjACIFQdjVABDbABogBSABEOYAGiAFQbDVABDbABogBSADEOYAGiAFQYjVABDbABogBSAEEOYAGiAFQejUABDbABogBSACEOYAGiAFQcDUABDbABogABATIAAQJiEKIAUgChDmABogBRDiACAFECYiCRAsAAsLIgECfyAAECQjAyAAIQMhAiABIAIgAxDWACADBEAgAxAmCwscAQF/IAEQHSIFIAMgACACIAQQ6QAgABAmGiAFCxwBAX8gARAiIgUgAyAAIAIgBBDqACAAECYaIAULGgAgAhAkIAAQJCAAIAEgAiADIARBARAjQQALGgAgAhAkIAAQJCAAIAEgAiADIARBAhAjQQALDwEBfyAAIgMgASACENkACw8BAX8gACIDIAEgAhDaAAsNAQF/IAAiAiABEN8ACxEBAX8gACIEIAEgAiADEMwACxEBAX8gACIEIAEgAiADENcACw0BAX8gACICIAEQ2wALcQEFf0GAgAFBABAeJARBARAaIgRBADYAACAEIQBBCBALIgNBgPCAgAQQDCADQQE2AAQgAyAANgAAIAMkBUGI0AAhAUEIEAsiAkGAhoCABBAMIAJBADYABCACIAE2AAAgAiQGQeDWAEEAQQIkCSQIJAcLBQAjAhoLC+EIAQBBkM4AC9gIAQAAAAEAAAAAAAAAAgAAAAEAAAAAAAAAAgAAAAIAAAAAAAAAAgAAAAIAAAACAAAAAAAAAAIAAAACAAAAAQAAAAAAAAACAAAAAQAAAAIAAAACAAAAAQAAAAAAAAADAAAAAQAAAAAAAAABAAAAAQAAAAAAAAAGAAAABgAAAAAAAAACAAAABAAAAAYAAAAIAAAACgAAAAMAAAABAAAAAAAAAAIAAAACAAAAAAAAAAIAAAABAAAAAQAAAAAAAAAEAAAAAQAAAAIAAAADAAAAAQAAAAAAAAABAAAAAQAAAAAAAAACAAAAAQAAAAAAAAAAAAAA4P///wAAAAAAAAAAAAAAAOD///8AAAAAAQAAAAAAAADg////IQAAAG0AbwBvAG4AcwBlAGUAZAAuAGIAZQBsAG8AdwA6ACAAdABoAGUAIABiAG8AdQBuAGQAIABpAHMAIAB6AGUAcgBvAAAAAAAAAOD///8AAAAAAAAAAAAAAADg////FwAAAEEAcgByAGEAeQAgAGMAYQBwAGEAYwBpAHQAeQAgAG8AdgBlAHIAZgBsAG8AdwAAAOD///8BAAAAMAAAAAAAAADg////HgAAAHIAYQBkAGkAeAAgAG0AdQBzAHQAIABiAGUAIABiAGUAdAB3AGUAZQBuACAAMgAgAGEAbgBkACAAMwA2AAAAAADg////JAAAADAAMQAyADMANAA1ADYANwA4ADkAYQBiAGMAZABlAGYAZwBoAGkAagBrAGwAbQBuAG8AcABxAHIAcwB0AHUAdgB3AHgAeQB6AAAAAAAAAAAA4P///xIAAABpAG4AdgBhAGwAaQBkACAAYwBvAGQAZQAgAHAAbwBpAG4AdAAAAAAA4P///x8AAABTAHQAcgBpAG4AZwBCAHUAaQBsAGQAZQByACAAYwBhAHAAYQBjAGkAdAB5ACAAbwB2AGUAcgBmAGwAbwB3AAAA4P///wAAAAAAAAAAAAAAAOD///8eAAAAcwBpAHoAZQBfAGgAaQBuAHQAIABtAHUAcwB0ACAAYgBlACAAbgBvAG4ALQBuAGUAZwBhAHQAaQB2AGUAAAAAAOD///8PAAAALAAgAHMAcgBjAC4AbABlAG4AZwB0AGgAIAA9ACAAAADg////CAAAACwAIABsAGUAbgAgAD0AIAAAAAAAAAAAAOD///8PAAAALAAgAGQAcwB0AF8AbwBmAGYAcwBlAHQAIAA9ACAAAADg////DwAAACwAIABzAHIAYwBfAG8AZgBmAHMAZQB0ACAAPQAgAAAA4P///yQAAABiAG8AdQBuAGQAcwAgAGMAaABlAGMAawAgAGYAYQBpAGwAZQBkADoAIABhAGwAbABvAGMAYQB0AGUAXwBsAGUAbgAgAD0AIAAAAAAAAAAAAOD///8AAAAAAgAAAAAAAADg////AB0AQAMAAAAEAAAABQAAAAYAAAAHAAAACAAAAOD///8CAAAAAQAAAAAAAAAANARuYW1lAC0sbW9vbmJpdHN0YWNrL21vb25zZWVkL2V4YW1wbGVzL2Jyb3dzZXJAMC4wLjEARQlwcm9kdWNlcnMCCGxhbmd1YWdlAQdNb29uQml0AAxwcm9jZXNzZWQtYnkBBW1vb25jEnYwLjEwLjE4KzZjODNhN2Y2Mg==</script>
 <script>
 (function(){
   "use strict";
@@ -1036,6 +1166,8 @@ body[data-lang="zh"] .lim b::after{
       });
       const mr = document.getElementById('mr-link');
       if (mr) mr.setAttribute('href', 'https://moonbitstack.github.io/moonrand/' + ((next === 'zh') ? '?lang=zh' : ''));
+      /* 注释长短随语言而变，溢出与否也跟着变：重挂一次 */
+      setTimeout(function(){ if (typeof wireBeads === 'function') wireBeads(); }, 0);
     }
     document.querySelectorAll('#lang button').forEach(function(b){
       b.addEventListener('click', function(){ apply(b.getAttribute('data-lang')); });
@@ -1043,6 +1175,75 @@ body[data-lang="zh"] .lim b::after{
     if (new URLSearchParams(location.search).get('lang') === 'zh') apply('zh');
     return { apply: apply, get: function(){ return lang; } };
   })();
+
+  /* ============================================================
+     瓷珠：代码横过界，珠在瓷片右缘，上下拖即左右看
+     ============================================================ */
+  function wireBeads(){
+    document.querySelectorAll(".bead, .beadrail").forEach(function(el){ el.remove(); });
+    document.querySelectorAll(".code").forEach(function(code){
+      const max = code.scrollWidth - code.clientWidth;
+      if (max < 4) return;
+      const host = code.closest(".face") || code;
+      if (getComputedStyle(host).position === "static") host.style.position = "relative";
+
+      const rail = document.createElement("span");
+      const outside = (host === code);
+      rail.className = "beadrail" + (outside ? " beadrail--out" : "");
+      const bead = document.createElement("span");
+      bead.className = "bead" + (outside ? " bead--out" : "");
+      bead.tabIndex = 0;
+      bead.setAttribute("role", "slider");
+      bead.setAttribute("aria-orientation", "vertical");
+      bead.setAttribute("aria-label", "code, sideways");
+      host.appendChild(rail);
+      host.appendChild(bead);
+
+      let p = 0;
+      const travel = function(){ return Math.max(1, host.clientHeight - 48 - 20 - 24); };
+      const paint = function(){
+        bead.style.transform = "translateY(" + (p * travel()) + "px)";
+        bead.setAttribute("aria-valuenow", Math.round(p * 100));
+      };
+      const seek = function(v){
+        p = Math.max(0, Math.min(1, v));
+        code.scrollLeft = p * (code.scrollWidth - code.clientWidth);
+        paint();
+      };
+      code.addEventListener("scroll", function(){
+        const m = code.scrollWidth - code.clientWidth;
+        p = m > 0 ? code.scrollLeft / m : 0;
+        paint();
+      });
+
+      let dragging = false, y0 = 0, p0 = 0;
+      bead.addEventListener("pointerdown", function(e){
+        dragging = true; y0 = e.clientY; p0 = p;
+        try { bead.setPointerCapture(e.pointerId); } catch (err) {}
+        bead.classList.add("is-live");
+        e.preventDefault();
+      });
+      bead.addEventListener("pointermove", function(e){
+        if (!dragging) return;
+        p = Math.max(0, Math.min(1, p0 + (e.clientY - y0) / travel()));
+        code.scrollLeft = p * (code.scrollWidth - code.clientWidth);
+        paint();
+      });
+      const stop = function(e){
+        if (!dragging) return;
+        dragging = false;
+        bead.classList.remove("is-live");
+        try { bead.releasePointerCapture(e.pointerId); } catch (err) {}
+      };
+      bead.addEventListener("pointerup", stop);
+      bead.addEventListener("pointercancel", stop);
+      bead.addEventListener("keydown", function(e){
+        if (e.key === "ArrowDown" || e.key === "ArrowRight"){ seek(p + .08); e.preventDefault(); }
+        else if (e.key === "ArrowUp" || e.key === "ArrowLeft"){ seek(p - .08); e.preventDefault(); }
+      });
+      paint();
+    });
+  }
 
   /* ============================================================
      本页的字节：一次取足，交与 wasm 里的 Replay
@@ -1329,6 +1530,18 @@ body[data-lang="zh"] .lim b::after{
   /* ============================================================
      直方图：同一串字节，below 与取模各数一遍
      ============================================================ */
+  const HIST_DEFS =
+    '<defs>' +
+    '<linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#35639F"/><stop offset=".58" stop-color="#23477F"/>' +
+    '<stop offset="1" stop-color="#18325C"/></linearGradient>' +
+    '<linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#BE5B45"/><stop offset=".58" stop-color="#A64634"/>' +
+    '<stop offset="1" stop-color="#85301F"/></linearGradient>' +
+    '</defs>';
+
+  const R1 = function(v){ return Math.round(v * 10) / 10; };
+
   function paintHist(){
     const svg = document.getElementById("hist-svg");
     if (!svg) return;
@@ -1343,27 +1556,84 @@ body[data-lang="zh"] .lim b::after{
       for (let i = 0; i < BINS; i++){ below.push(TRIALS / BINS); mod.push(TRIALS / BINS); }
     }
 
-    const W = 760, H = 190, top = 14, base = H - 26;
-    const max = Math.max.apply(null, below.concat(mod)) * 1.12 || 1;
-    const slot = (W - 24) / BINS, bw = slot * 0.30;
-    let out = "";
+    /* 以实际像素为坐标，笔画不被拉长 */
+    const W = Math.max(280, Math.round(svg.clientWidth || 760));
+    const H = 200;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+    const padL = 3, padR = W - 3, top = 12, base = H - 24;
+    const max = Math.max.apply(null, below.concat(mod)) * 1.14 || 1;
+    const slot = (padR - padL) / BINS;
+    const bw = Math.max(3, Math.min(11, slot * 0.32));
+    const hOf = function(v){ return (v / max) * (base - top); };
+
+    let out = HIST_DEFS;
+
+    /* 等概应有的一百：一道虚线，偏与不偏一眼见分晓 */
+    const yE = base - hOf(TRIALS / BINS);
+    out += '<line x1="' + padL + '" y1="' + R1(yE) + '" x2="' + padR + '" y2="' + R1(yE) +
+      '" stroke="#23477F" stroke-opacity=".32" stroke-width=".8" stroke-dasharray="3 3"/>';
+
     for (let i = 0; i < BINS; i++){
-      const x = 6 + i * slot;
-      const hb = (below[i] / max) * (base - top);
-      const hm = (mod[i] / max) * (base - top);
-      out += '<rect x="' + (x + slot * 0.12) + '" y="' + (base - hb) + '" width="' + bw +
-        '" height="' + Math.max(hb, .5) + '" fill="#2E5F52" opacity=".82"/>';
-      out += '<rect x="' + (x + slot * 0.12 + bw + 1.5) + '" y="' + (base - hm) + '" width="' + bw +
-        '" height="' + Math.max(hm, .5) + '" fill="#B04A38" opacity=".46"/>';
+      const x = padL + i * slot + (slot - bw * 2 - 2) / 2;
+      const hb = hOf(below[i]), hm = hOf(mod[i]);
+      out += '<rect x="' + R1(x) + '" y="' + R1(base - hb) + '" width="' + R1(bw) +
+        '" height="' + R1(Math.max(hb, .8)) + '" rx="1" fill="url(#gBlue)" opacity=".94"/>';
+      out += '<rect x="' + R1(x + bw + 2) + '" y="' + R1(base - hm) + '" width="' + R1(bw) +
+        '" height="' + R1(Math.max(hm, .8)) + '" rx="1" fill="url(#gRed)" opacity=".72"/>';
       if (i % 5 === 0){
-        out += '<text x="' + (x + slot * 0.12) + '" y="' + (base + 13) + '" font-size="9" ' +
-          'font-family="ui-monospace,monospace" fill="#7A8A84">' + (i * (UPPER / BINS)) + '</text>';
+        out += '<text x="' + R1(x) + '" y="' + (base + 14) + '" font-size="8.5" ' +
+          'font-family="ui-monospace,monospace" letter-spacing=".1em" fill="#6E7F8C">' +
+          (i * (UPPER / BINS)) + '</text>';
       }
     }
-    out += '<line x1="6" y1="' + base + '" x2="' + (W - 6) + '" y2="' + base +
-      '" stroke="#23477F" stroke-opacity=".28" stroke-width="1"/>';
-    out += '<line x1="6" y1="' + top + '" x2="' + (W - 6) + '" y2="' + top +
-      '" stroke="#23477F" stroke-opacity=".10" stroke-width="1" stroke-dasharray="3 3"/>';
+
+    out += '<line x1="' + padL + '" y1="' + base + '" x2="' + padR + '" y2="' + base +
+      '" stroke="#23477F" stroke-opacity=".30" stroke-width=".8"/>';
+
+    svg.innerHTML = out;
+  }
+
+  /* ============================================================
+     裂纹：与首屏那块瓷同一个来历，也从这条流里走
+     ============================================================ */
+  function paintCracks(){
+    const svg = document.getElementById("shard-cracks");
+    if (!svg || !svg.parentElement) return;
+    const box = svg.parentElement.getBoundingClientRect();
+    const W = Math.max(200, Math.round(box.width));
+    const H = Math.max(120, Math.round(box.height));
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+    /* 十几个点，各自连最近的两点：釉面收火时的冰裂，不是划痕 */
+    const pts = [];
+    for (let i = 0; i < 22; i++) pts.push([rnd() * W, rnd() * H]);
+
+    const seen = {};
+    let out = "";
+    for (let i = 0; i < pts.length; i++){
+      const near = [];
+      for (let j = 0; j < pts.length; j++){
+        if (i === j) continue;
+        const dx = pts[j][0] - pts[i][0], dy = pts[j][1] - pts[i][1];
+        near.push([dx * dx + dy * dy, j]);
+      }
+      near.sort(function(a, b){ return a[0] - b[0]; });
+      for (let k = 0; k < 2; k++){
+        const j = near[k][1];
+        const key = i < j ? i + ":" + j : j + ":" + i;
+        if (seen[key]) continue;
+        seen[key] = 1;
+        const ax = pts[i][0], ay = pts[i][1], bx = pts[j][0], by = pts[j][1];
+        /* 中段折一下，线才像裂，不像尺子画的 */
+        const mx = (ax + bx) / 2 + (rnd() - .5) * 7;
+        const my = (ay + by) / 2 + (rnd() - .5) * 7;
+        const d = "M" + R1(ax) + " " + R1(ay) + " L" + R1(mx) + " " + R1(my) +
+                  " L" + R1(bx) + " " + R1(by);
+        out += '<path d="' + d + '" fill="none" stroke="#FFFFFF" stroke-opacity=".28" stroke-width="1.1"/>';
+        out += '<path d="' + d + '" fill="none" stroke="#3F6A5E" stroke-opacity=".10" stroke-width=".6"/>';
+      }
+    }
     svg.innerHTML = out;
   }
 
@@ -1378,8 +1648,9 @@ body[data-lang="zh"] .lim b::after{
   }
 
   /* ============================================================
-     打开流：编译成 wasm-gc 的本库
+     打开流：编译成 wasm（WASI）的本库
      —— 页面交字节，Replay 收着，below 抽出每一枚
+     —— 这一份 wasm 只向宿主借一个 fd_write，页面给它一个空实现
      ============================================================ */
   async function engineBytes(){
     try {
@@ -1392,7 +1663,9 @@ body[data-lang="zh"] .lim b::after{
   (async function boot(){
     try {
       const bytes = await engineBytes();
-      const mod = await WebAssembly.instantiate(bytes, {});
+      /* 这一份 wasm 只向宿主借一个 fd_write；页面不打印，故空着给 */
+      const wasi = { wasi_snapshot_preview1: { fd_write: function(){ return 0; } } };
+      const mod = await WebAssembly.instantiate(bytes, wasi);
       const ex = mod.instance.exports;
       ex._start();
       ex.reset();
@@ -1400,13 +1673,23 @@ body[data-lang="zh"] .lim b::after{
       if (!ex.open()) throw new Error("the replay took no bytes");
       engine = ex;
       rnd = function(){ return ex.unit(); };
-      if (engineEl) engineEl.textContent = "below · wasm-gc";
+      if (engineEl) engineEl.textContent = "below · wasm";
     } catch (err){
       if (engineEl) engineEl.textContent = "splitmix32 · 兜底";
       console.warn("moonseed.wasm unavailable:", err);
     }
     paintAll();
     paintHist();
+    paintCracks();
+    wireBeads();
+    /* 字体到位后，代码长短略有出入：再挂一次 */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(wireBeads);
+    setTimeout(wireBeads, 400);
+    let rz = 0;
+    window.addEventListener("resize", function(){
+      clearTimeout(rz);
+      rz = setTimeout(function(){ paintHist(); wireBeads(); }, 180);
+    });
   })();
 })();
 </script>

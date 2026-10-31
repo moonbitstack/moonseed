@@ -35,7 +35,7 @@ jobs:
       - name: build the engine the page calls
         run: |
           moon update
-          moon build --target wasm-gc --release src/examples/browser
+          moon build --target wasm --release src/examples/browser
           mkdir -p docs/engine
           cp "$(find _build -path '*release*' -name browser.wasm | head -1)" docs/engine/moonseed.wasm
           ls -l docs/engine
