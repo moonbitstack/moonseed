@@ -1,0 +1,7 @@
+// Everything this repository does, in one run: `moon run src/examples/tour`.
+pkgtype(kind: "executable")
+
+import {
+  "moonbitstack/moonseed",
+  "moonbitstack/moonseed/system",
+}

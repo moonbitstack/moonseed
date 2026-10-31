@@ -1,0 +1,15 @@
+// The platform's entropy source: crypto.getRandomValues on JavaScript, the
+// WASI random_get call on wasm and wasm-gc, the runtime's source on native.
+// Linking this package links that call, so a program for a wasm host without
+// WASI uses the root package with a source of its own instead.
+import {
+  "moonbitstack/moonseed",
+  "moonbitlang/core/env",
+}
+
+options(
+  targets: {
+    "system_test.mbt": [ "native", "js", "wasm" ],
+    "system_wasmgc_test.mbt": [ "wasm-gc" ],
+  },
+)

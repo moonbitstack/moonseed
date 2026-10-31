@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseed/system"
+
+import {
+  "moonbitstack/moonseed",
+}
+
+// Values
+pub let source : System
+
+// Errors
+
+// Types and methods
+pub struct System {
+}
+pub fn System::fill(Self, FixedArray[Byte]) -> Unit raise @moonseed.Unavailable
+pub impl @moonseed.Source for System
+
+// Type aliases
+
+// Traits

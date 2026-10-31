@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonbitstack/moonseed"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn[S : Source] below(BytesView, S) -> Bytes raise Unavailable
+
+pub fn[S : Source] bytes(Int32, S) -> Bytes raise Unavailable
+
+pub fn[S : Source] scalar(BytesView, S) -> Bytes raise Unavailable
+
+// Errors
+pub(all) suberror Unavailable {
+  Platform
+  Exhausted
+  Failed(String)
+} derive(Eq, @debug.Debug)
+pub fn Unavailable::equal(Self, Self) -> Bool
+pub fn Unavailable::not_equal(Self, Self) -> Bool
+pub fn Unavailable::output(Self, &Logger) -> Unit
+pub fn Unavailable::to_repr(Self) -> @debug.Repr
+pub fn Unavailable::to_string(Self) -> String
+pub impl Show for Unavailable
+
+// Types and methods
+pub struct Replay {
+  // private fields
+}
+pub fn Replay::fill(Self, FixedArray[Byte]) -> Unit raise Unavailable
+pub fn Replay::new(Bytes) -> Self
+pub fn Replay::remaining(Self) -> Int32
+pub impl Source for Replay
+
+// Type aliases
+
+// Traits
+pub(open) trait Source {
+  fn fill(Self, FixedArray[Byte]) -> Unit raise Unavailable
+}

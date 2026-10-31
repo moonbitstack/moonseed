@@ -1,0 +1,4 @@
+// Random bytes and the numbers drawn from them, over any entropy source the
+// caller supplies. No platform code: the platform source is `moonseed/system`.
+//   RFC 4086, Randomness Requirements for Security: https://www.rfc-editor.org/rfc/rfc4086
+//   FIPS 186-5 A.2.2, rejection sampling: https://csrc.nist.gov/pubs/fips/186-5/final
