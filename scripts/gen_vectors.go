@@ -1,7 +1,7 @@
 // Vectors for `below` and `scalar`, drawn by Go itself from fixed byte streams:
 // crypto/rand.Int for `below`, crypto/ecdsa.GenerateKey for `scalar`. Each
 // vector holds exactly the bytes Go read and the values it returned, so a
-// replay of those bytes through moonrand must return the same values and use
+// replay of those bytes through moonseed must return the same values and use
 // every byte.
 //
 //	go run scripts/gen_vectors.go > src/vectors_test.mbt
@@ -150,9 +150,9 @@ func main() {
 test "below returns what Go's crypto/rand.Int returns, from the same bytes" {
   for v in below_vectors {
     let (bound, stream, values) = v
-    let source = @moonrand.Replay::new(stream)
+    let source = @moonseed.Replay::new(stream)
     for value in values {
-      assert_eq(@moonrand.below(bound, source), value)
+      assert_eq(@moonseed.below(bound, source), value)
     }
     assert_eq(source.remaining(), 0)
   }
@@ -162,8 +162,8 @@ test "below returns what Go's crypto/rand.Int returns, from the same bytes" {
 test "scalar returns the key Go's ecdsa.GenerateKey makes, from the same bytes" {
   for v in scalar_vectors {
     let (order, stream, key) = v
-    let source = @moonrand.Replay::new(stream)
-    assert_eq(@moonrand.scalar(order, source), key)
+    let source = @moonseed.Replay::new(stream)
+    assert_eq(@moonseed.scalar(order, source), key)
     assert_eq(source.remaining(), 0)
   }
 }

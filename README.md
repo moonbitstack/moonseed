@@ -1,7 +1,17 @@
-# moonseed
+<div align="center">
 
-Secure random bytes, and numbers drawn from them without bias, over any entropy
-source the caller supplies.
+<h1>moonseed</h1>
+
+<p><b>Secure random bytes, and numbers drawn from them without bias, over any entropy source the caller supplies.</b></p>
+
+<p>
+<a href="https://moonbitstack.github.io/moonseed/">Home</a> ·
+<a href="https://moonbitstack.github.io/moonseed/#start">Guide</a> ·
+<a href="https://moonbitstack.github.io/moonseed/#api">API</a> ·
+<a href="https://mooncakes.io/docs/moonbitstack/moonseed">mooncakes</a>
+</p>
+
+</div>
 
 ```moonbit
 test "draw" {
@@ -43,25 +53,47 @@ impl @moonseed.Source for Device with fn fill(_self, _buf) {
 
 No source falls back to a seeded generator. When there are no bytes to be had,
 the call raises `Unavailable`: `Platform` from the platform source, `Exhausted`
-from a replay, `Failed(reason)` from a source of your own.
+from a replay, `Failed(reason)` from a source of your own. A key drawn from a
+fallback looks like any other key and is guessable, so the failure is the
+caller's to see.
+
+## Replaying bytes
+
+`Replay` hands out the bytes it was built from, in order, and then raises
+`Exhausted`. A test pins a draw with it, and a vector written elsewhere replays
+through it byte for byte.
+
+```moonbit
+test "replay" {
+  let source = @moonseed.Replay::new(b"\x07\xff\x02")
+  assert_eq(@moonseed.below(b"\x0a", source), b"\x07")
+  // 0xff is 15 once the high bits are cleared, too big, so the next byte is drawn.
+  assert_eq(@moonseed.below(b"\x0a", source), b"\x02")
+  assert_eq(source.remaining(), 0)
+  let refused = try {
+    ignore(@moonseed.below(b"\x0a", source))
+    false
+  } catch {
+    Exhausted => true
+    _ => false
+  }
+  assert_true(refused)
+}
+```
 
 ## Sampling
 
 `below(bound, source)` reads `bound` as a big-endian number and returns one in
-[0, `bound`), as wide as `bound`. It draws as Go's `crypto/rand.Int` does: as
-many bytes as `bound - 1` needs, the unused high bits of the first cleared,
-drawn again while the value is at or above `bound`. Every value is equally
+[0, `bound`), as wide as `bound`. It draws as many bytes as `bound - 1` needs,
+clears the unused high bits of the first, and draws again while the value is at
+or above `bound`. Every value is equally
 likely; reducing a wider draw modulo `bound` would favour the small ones.
 
 `scalar(order, source)` returns a value in [1, `order` - 1], as wide as `order`:
 a private key or a nonce for a group of that order. It draws as FIPS 186-5
-A.2.2 and Go's ECDSA do: the leftmost bits of a draw as long as `order`, drawn
-again while the value is zero or not below `order`. A P-521 scalar is 66 bytes
+A.2.2 says: the leftmost bits of a draw as long as `order`, drawn again while
+the value is zero or not below `order`. A P-521 scalar is 66 bytes
 with the top bits clear, which is why this is not "ask for 32 bytes".
-
-Both are checked against Go: `scripts/gen_vectors.go` has `crypto/rand.Int` and
-`ecdsa.GenerateKey` draw from fixed byte streams, and the tests replay those
-bytes and expect the same values, every byte used.
 
 ## Licence
 

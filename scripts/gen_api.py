@@ -246,6 +246,7 @@ def rows_html() -> str:
 
 def version_patch(page: str) -> str:
     version = re.search(r'^version = "(.*)"', (ROOT / "moon.mod").read_text(encoding="utf-8"), re.M)
+    page = re.sub(r'(<span id="rev-head">)[^<]*(</span>)', rf"\g<1>{version.group(1)}\g<2>", page)
     return re.sub(r'(<b id="rev-value">)[^<]*(</b>)', rf"\g<1>{version.group(1)}\g<2>", page)
 
 
