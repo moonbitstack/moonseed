@@ -1,6 +1,6 @@
 name = "moonbitstack/moonseed"
 
-version = "0.1.0"
+version = "0.1.1"
 
 readme = "README.md"
 
@@ -8,7 +8,18 @@ repository = "https://github.com/moonbitstack/moonseed"
 
 license = "Apache-2.0"
 
-keywords = [ "random", "entropy", "csprng", "crypto", "moonbit" ]
+keywords = [
+  "random",
+  "entropy",
+  "csprng",
+  "secure-random",
+  "getrandom",
+  "urandom",
+  "os-random",
+  "crypto",
+  "sampling",
+  "moonbit",
+]
 
 description = "Secure random bytes and unbiased sampling for MoonBit; never a seeded generator."
 
