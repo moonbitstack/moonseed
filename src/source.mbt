@@ -9,6 +9,7 @@ pub(open) trait Source {
 ///|
 /// No random bytes could be had. There is no fallback to a seeded generator:
 /// a caller that needs entropy and gets none stops here.
+#derive(Eq, Debug)
 pub(all) suberror Unavailable {
   /// The platform has no entropy source, or its source failed.
   Platform
@@ -16,7 +17,7 @@ pub(all) suberror Unavailable {
   Exhausted
   /// A source of the program's own failed, for the reason given.
   Failed(String)
-} derive(Eq, Debug)
+}
 
 ///|
 pub extend Unavailable with Eq::{equal, not_equal}
