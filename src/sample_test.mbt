@@ -175,3 +175,34 @@ test "panic below refuses a zero bound" {
 test "panic scalar refuses an order below 2" {
   ignore(@moonseed.scalar(b"\x00\x01", @moonseed.Replay::new(b"\x00")))
 }
+
+///|
+/// A bound of one has one value below it, and finding it needs no bytes.
+test "below of one reads nothing" {
+  let source = @moonseed.Replay::new(b"\x00")
+  assert_eq(@moonseed.below(b"\x01", source), b"\x00")
+  assert_eq(source.remaining(), 1)
+}
+
+///|
+/// The order itself is refused, not only the values above it: 5 keeps the top
+/// three bits of every draw, and 0xa0 keeps 5.
+test "scalar draws again on a value equal to the order" {
+  let source = @moonseed.Replay::new(b"\xa0\x80")
+  assert_eq(@moonseed.scalar(b"\x05", source), b"\x04")
+  assert_eq(source.remaining(), 0)
+}
+
+///|
+/// The mask leaves the top bits of the first byte alone when the bound needs
+/// all eight of them: 255 needs no redraw for any draw below it.
+test "below a whole byte masks nothing" {
+  for d in 0..<255 {
+    let source = @moonseed.Replay::new(Bytes::from_array([d.to_byte()]))
+    assert_eq(
+      @moonseed.below(b"\xff", source),
+      Bytes::from_array([d.to_byte()]),
+    )
+    assert_eq(source.remaining(), 0)
+  }
+}

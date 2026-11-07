@@ -1,6 +1,15 @@
 ///|
-/// `n` uniform random bytes: Go's `rand.Read`, Python's `secrets.token_bytes`.
-/// Aborts on a negative `n`.
+/// `n` uniform random bytes, no more and no fewer.
+///
+/// Aborts on a negative `n`: that is a mistake in the caller, and handing back
+/// an empty buffer would hide it.
+///
+/// ```mbt check
+/// test {
+///   let source = @moonseed.Replay::new(b"\x01\x02\x03")
+///   assert_eq(@moonseed.bytes(2, source), b"\x01\x02")
+/// }
+/// ```
 pub fn[S : Source] bytes(n : Int32, source : S) -> Bytes raise Unavailable {
   if n < 0 {
     abort("moonseed.bytes: a negative length, \{n}")
@@ -11,12 +20,19 @@ pub fn[S : Source] bytes(n : Int32, source : S) -> Bytes raise Unavailable {
 }
 
 ///|
-/// A uniform number in [0, `bound`), both big-endian and as wide as `bound`,
-/// drawn as Go's `crypto/rand.Int` draws it and from the same bytes: as many
-/// bytes as `bound - 1` needs, the unused high bits of the first cleared, drawn
-/// again while the value is at or above `bound`. No value is likelier than
-/// another; reducing a wider draw modulo `bound` would favour the small ones.
-/// A `bound` of 1 reads nothing. Aborts when `bound` is zero.
+/// A uniform number in [0, `bound`), big-endian and as wide as `bound`.
+///
+/// Draws as many bytes as `bound - 1` needs, clears the unused high bits of the
+/// first, and draws again while the value is at or above `bound`. Rejection
+/// rather than modulo: reducing a wider draw modulo `bound` would favour the
+/// small values. A `bound` of 1 reads nothing. Aborts when `bound` is zero.
+///
+/// ```mbt check
+/// test {
+///   let source = @moonseed.Replay::new(b"\x17\x90")
+///   assert_eq(@moonseed.below(b"\x03\xe8", source), b"\x03\x90")
+/// }
+/// ```
 pub fn[S : Source] below(
   bound : BytesView,
   source : S,
@@ -50,10 +66,19 @@ pub fn[S : Source] below(
 
 ///|
 /// A uniform number in [1, `order` - 1], as wide as `order`: the private key or
-/// nonce of a group of that order, drawn as FIPS 186-5 A.2.2 and Go's ECDSA
-/// draw it and from the same bytes: the leftmost bits of a draw as long as
-/// `order`, drawn again while the value is zero or at or above `order`.
-/// Aborts when `order` is below 2.
+/// nonce of a group of that order.
+///
+/// Draws as FIPS 186-5 A.2.2 says: the leftmost bits of a draw as long as
+/// `order`, drawn again while the value is zero or at or above `order`. A
+/// P-521 scalar is 66 bytes with its top bits clear, which is why this cannot
+/// be "ask for 32 bytes". Aborts when `order` is below 2.
+///
+/// ```mbt check
+/// test {
+///   let source = @moonseed.Replay::new(b"\xc0\x80")
+///   assert_eq(@moonseed.scalar(b"\x05", source), b"\x04")
+/// }
+/// ```
 pub fn[S : Source] scalar(
   order : BytesView,
   source : S,

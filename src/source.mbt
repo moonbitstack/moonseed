@@ -1,7 +1,9 @@
 ///|
-/// Where random bytes come from: Rust's `RngCore::try_fill_bytes`. The
-/// platform's source is `@system.source`; a program implements this for a
-/// hardware source, a service, or a fixed sequence in its tests.
+/// Where the bytes come from.
+///
+/// Open, so a program can plug in a hardware source, a service, or a fixed
+/// sequence in a test, and this library needs to know about none of them. The
+/// platform's own source is `@system.source`.
 pub(open) trait Source {
   fn fill(Self, FixedArray[Byte]) -> Unit raise Unavailable
 }
