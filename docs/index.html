@@ -793,10 +793,10 @@ body[data-lang="zh"] .shard__key em{
     </div>
     <nav class="rail__nav">
       <a href="#source" data-zh="01 来源">01 source</a>
-      <a href="#start" data-zh="02 起笔">02 start</a>
+      <a href="#start" data-zh="02 上手">02 start</a>
       <a href="#sample" data-zh="03 取样">03 sampling</a>
       <a href="#api" data-zh="04 接口">04 api</a>
-      <a href="#limits" data-zh="05 界限">05 limits</a>
+      <a href="#limits" data-zh="05 限制">05 limits</a>
     </nav>
     <div class="lang" id="lang">
       <button type="button" data-lang="en" class="is-on" title="English (en-US)">en</button>
@@ -811,8 +811,8 @@ body[data-lang="zh"] .shard__key em{
     <div class="hero__tx">
       <div class="hero__eyebrow mono">moonbitstack / moonseed</div>
       <h1 class="wm" data-zh="MoonSeed">moonseed</h1>
-      <p class="hero__sub" data-zh="安全的随机字节，无偏的取样。">Secure random bytes, drawn without bias.</p>
-      <p class="hero__lede" data-zh="来源由你，填满由它。无发生器，无状态，亦无以种子权代熵之回退：无字节可取，则止而报 &lt;b&gt;Unavailable&lt;/b&gt;。">
+      <p class="hero__sub" data-zh="安全的随机字节，无偏取样。">Secure random bytes, drawn without bias.</p>
+      <p class="hero__lede" data-zh="来源由你提供，它负责填满。没有发生器，也没有状态，更不会悄悄退回有种子生成器：取不到字节，就在 &lt;b&gt;Unavailable&lt;/b&gt; 处停下。">
         You supply the source; it fills the buffer. No generator, no state, and no quiet
         fallback to a seeded one — when there are no bytes to be had, the call stops with
         <b>Unavailable</b>.
@@ -825,7 +825,7 @@ body[data-lang="zh"] .shard__key em{
     </div>
 
     <div class="stage">
-      <p class="stage__note" data-zh="此瓷由本页所取之字节、经 below 抽取而绘成；画瓷的，是本库编译成 wasm 的那一份。按之即裂。">
+      <p class="stage__note" data-zh="这块瓷片由本页取到的字节经 below 抽样画出，画它的是本库编译成的 wasm。按一下，裂纹就散开。">
         This tile was drawn from the bytes this page took, through below — by this library,
         compiled to wasm. Press it and the net breaks.
       </p>
@@ -854,22 +854,21 @@ body[data-lang="zh"] .shard__key em{
         <span class="sec__no" data-zh="一">01</span>
         <h2 class="sec__title" data-zh="来源">Source</h2>
       </div>
-      <p class="sec__note" data-zh="一法而已，填满缓冲；字节所自，由调用方定。">One method, fills the buffer. Who fills it is the caller's business.</p>
+      <p class="sec__note" data-zh="只有一个方法：把缓冲填满。字节从哪里来，由调用方决定。">One method, fills the buffer. Who fills it is the caller's business.</p>
     </div>
 
     <div class="two">
       <div>
-        <p class="prose" data-zh="全库只一约：交出字节。&lt;em&gt;@system.source&lt;/em&gt; 即平台：JavaScript 上取 &lt;em&gt;crypto.getRandomValues&lt;/em&gt;，wasm 上取 WASI 之 &lt;em&gt;random_get&lt;/em&gt;，native 则委诸运行时。">
+        <p class="prose" data-zh="整个库只有一条约定：交出字节。&lt;em&gt;@system.source&lt;/em&gt; 就是平台本身：JavaScript 上取 &lt;em&gt;crypto.getRandomValues&lt;/em&gt;，wasm 上取 WASI 的 &lt;em&gt;random_get&lt;/em&gt;，native 上交给运行时。">
           The crate is one contract: give me bytes. <em>@system.source</em> is the platform's —
           <em>crypto.getRandomValues</em> on JavaScript, WASI's <em>random_get</em> on wasm, the
           runtime on native.
         </p>
-        <p class="prose" data-zh="&lt;em&gt;Replay&lt;/em&gt; 将所予字节依次发尽而止，测试向量即由此回放。自定实现，可为设备，可为服务，亦可为一纸文件。三源殊途，同归一法。">
-          <em>Replay</em> hands back the bytes it was given, in order, until it runs out — that is
-          how the test vectors are replayed. Your own implementation can be a device, a service, a
-          file. Three kinds of source, one method.
+        <p class="prose" data-zh="&lt;em&gt;Replay&lt;/em&gt; 把给定的字节按顺序发完就停，它由字节构成，不碰平台。也可以自己实现：一台设备、一个服务、一个文件，都走同一个方法。">
+          <em>Replay</em> hands back the bytes it was given, in order, until it runs out. Your own
+          implementation can be a device, a service, a file. Three kinds of source, one method.
         </p>
-        <p class="prose" data-zh="无回退。此非文辞之诺，而为类型之约：取之不得，则 &lt;em&gt;raise&lt;/em&gt;；签名已明书，调用方无从回避。">
+        <p class="prose" data-zh="没有回退。这不是文字上的承诺，而是类型里的约定：取不到就 &lt;em&gt;raise&lt;/em&gt;，签名已经写明，调用方躲不开。">
           There is no fallback. That is not a promise in the prose, it is in the type: the call
           <em>raises</em>, the signature says so, and the caller cannot miss it.
         </p>
@@ -877,15 +876,15 @@ body[data-lang="zh"] .shard__key em{
 
       <div class="face face--celadon">
         <span class="face__tag">celadon · surface</span>
-        <div class="code code--on"><span class="c" data-zh="// 一法，一误">// one method, one error</span>
+        <div class="code code--on"><span class="c" data-zh="// 一个方法，一种错误">// one method, one error</span>
 <span class="k">pub</span>(<span class="k">open</span>) <span class="k">trait</span> Source {
   <span class="k">fn</span> fill(<span class="k">Self</span>, FixedArray[Byte]) -&gt; Unit <span class="k">raise</span> Unavailable
 }
 
 <span class="k">pub</span>(<span class="k">all</span>) <span class="k">suberror</span> Unavailable {
-  Platform            <span class="c" data-zh="// 平台无熵">// no entropy on this platform</span>
-  Exhausted           <span class="c" data-zh="// 回放已尽">// the replay is spent</span>
-  Failed(String)      <span class="c" data-zh="// 自定来源之败，缘由自陈">// your source failed, your reason</span>
+  Platform            <span class="c" data-zh="// 平台没有熵可用">// no entropy on this platform</span>
+  Exhausted           <span class="c" data-zh="// 回放的字节用完了">// the replay is spent</span>
+  Failed(String)      <span class="c" data-zh="// 自己的来源失败了，原因由你给">// your source failed, your reason</span>
 }</div>
       </div>
     </div>
@@ -898,23 +897,23 @@ body[data-lang="zh"] .shard__key em{
     <div class="sec__head">
       <div class="sec__plate">
         <span class="sec__no" data-zh="二">02</span>
-        <h2 class="sec__title" data-zh="起笔">Start</h2>
+        <h2 class="sec__title" data-zh="上手">Start</h2>
       </div>
-      <p class="sec__note" data-zh="三行足矣。无初始化，无全局状态，无须先造发生器。">Three lines. No init, no global state, no generator to construct first.</p>
+      <p class="sec__note" data-zh="三行就够。不用初始化，没有全局状态，也不必先造一个发生器。">Three lines. No init, no global state, no generator to construct first.</p>
     </div>
 
     <div class="two">
       <div>
-      <div class="code"><span class="c" data-zh="// 三十二枚均匀字节；长为负则 abort">// thirty-two uniform bytes; a negative length aborts</span>
+      <div class="code"><span class="c" data-zh="// 32 个均匀字节；长度为负会中止">// thirty-two uniform bytes; a negative length aborts</span>
 <span class="k">let</span> key = <span class="k">@moonseed</span>.bytes(<span class="s">32</span>, <span class="k">@system</span>.source)
 
-<span class="c" data-zh="// [0, 1000)，宽同 bound">// in [0, 1000), as wide as the bound</span>
+<span class="c" data-zh="// [0, 1000)，宽度同 bound">// in [0, 1000), as wide as the bound</span>
 <span class="k">let</span> n = <span class="k">@moonseed</span>.below(<span class="s">b"\x03\xe8"</span>, <span class="k">@system</span>.source)
 
-<span class="c" data-zh="// [1, 4)：私钥、nonce">// in [1, 4): a key, a nonce</span>
+<span class="c" data-zh="// [1, 4)：可以当私钥或 nonce">// in [1, 4): a key, a nonce</span>
 <span class="k">let</span> d = <span class="k">@moonseed</span>.scalar(<span class="s">b"\x05"</span>, <span class="k">@system</span>.source)</div>
 
-        <p class="aside-note" data-zh="&lt;b&gt;moon run src/examples/tour&lt;/b&gt; 遍历诸接口，可见其如何索取字节。">
+        <p class="aside-note" data-zh="&lt;b&gt;moon run src/examples/tour&lt;/b&gt; 把接口走一遍，可以看到它怎么要字节。">
           <b>moon run src/examples/tour</b> walks the whole API once, so you can watch it ask for bytes.
         </p>
       </div>
@@ -924,15 +923,15 @@ body[data-lang="zh"] .shard__key em{
         <div class="srcs">
           <div class="src">
             <div class="src__k">@system.source</div>
-            <div class="src__v" data-zh="平台本身。JS 取 crypto，wasm 取 WASI random_get，native 委诸运行时。自身不存一物，每填皆重问于平台。">The platform. crypto on JS, WASI random_get on wasm, the runtime on native. It holds nothing; every fill asks again.</div>
+            <div class="src__v" data-zh="平台本身。JS 用 crypto，wasm 用 WASI random_get，native 交给运行时。它什么都不存，每次填充都重新问平台。">The platform. crypto on JS, WASI random_get on wasm, the runtime on native. It holds nothing; every fill asks again.</div>
           </div>
           <div class="src">
             <div class="src__k">Replay::new(bytes)</div>
-            <div class="src__v" data-zh="所予字节依次发出，发尽则报 Exhausted。测试向量由此回放；remaining() 可问余数。">The bytes given, in order, then Exhausted. Test vectors walk this path; remaining() says how many bytes are left.</div>
+            <div class="src__v" data-zh="给定的字节按顺序发出，发完报 Exhausted。remaining() 可以问还剩多少。">The bytes given, in order, then Exhausted. remaining() says how many bytes are left.</div>
           </div>
           <div class="src">
             <div class="src__k">impl Source for …</div>
-            <div class="src__v" data-zh="自备之设备、服务或夹具。若失败，则 raise Failed(reason)，缘由原样达于调用方。">Your device, your service, your fixture. On failure raise Failed(reason) and the reason reaches the caller unchanged.</div>
+            <div class="src__v" data-zh="自己的设备、服务或夹具。失败就 raise Failed(reason)，原因原样传给调用方。">Your device, your service, your fixture. On failure raise Failed(reason) and the reason reaches the caller unchanged.</div>
           </div>
         </div>
       </div>
@@ -948,41 +947,40 @@ body[data-lang="zh"] .shard__key em{
         <span class="sec__no" data-zh="三">03</span>
         <h2 class="sec__title" data-zh="取样">Sampling</h2>
       </div>
-      <p class="sec__note" data-zh="用拒绝法，不用取模。因取模则小者偏多，故此函数舍之。">Rejection, not modulo. Modulo favours the small values; not doing that is why this function exists.</p>
+      <p class="sec__note" data-zh="用拒绝法，不用取模。取模会让小的值偏多，所以不这么做。">Rejection, not modulo. Modulo favours the small values; not doing that is why this function exists.</p>
     </div>
 
     <div class="two">
       <div>
-        <p class="prose" data-zh="&lt;em&gt;below(bound)&lt;/em&gt; 以 bound 为大端之数：bound−1 需几字节，则抽几字节；首字节溢出之高位置零；所得不小于 bound 者，弃而重抽。故诸值等概。">
+        <p class="prose" data-zh="&lt;em&gt;below(bound)&lt;/em&gt; 把 bound 当作大端数：bound−1 需要几个字节就抽几个字节，首字节多余的高位清零，结果不小于 bound 就丢掉重抽。这样每个值的机会一样。">
           <em>below(bound)</em> reads its bound as a big-endian number: draw exactly as many bytes as
           bound−1 needs, clear the unused high bits of the first, and draw again while the value is at
           or above bound. Every value is equally likely.
         </p>
-        <p class="prose" data-zh="&lt;em&gt;scalar(order)&lt;/em&gt; 取自 [1, order)，即群之私钥、nonce。按 order 之宽抽取；遇零或不小于 order，则弃而重抽。其法与 FIPS 186-5 A.2.2 及 Go 之 ECDSA 同。P-521 之标量 66 字节，高位本清，故不可写作「索取 32 字节」。">
+        <p class="prose" data-zh="&lt;em&gt;scalar(order)&lt;/em&gt; 给出 [1, order) 里的一个数，用来当私钥或 nonce。抽取的宽度和 order 一样，遇到零或不小于 order 就重抽，做法照 FIPS 186-5 A.2.2。P-521 的标量是 66 字节且高位清零，所以不能写成「取 32 字节」。">
           <em>scalar(order)</em> gives you something in [1, order) — a private key, a nonce. Draw as
           wide as order, draw again while the value is zero or not below order: FIPS 186-5 A.2.2,
           the same draw Go's ECDSA makes. A P-521 scalar is 66 bytes with the top bits clear, which
           is why this cannot be "ask for 32 bytes".
         </p>
-        <p class="prose" data-zh="二者皆与 Go 对校：以固定字节流喂 &lt;em&gt;crypto/rand.Int&lt;/em&gt; 与 &lt;em&gt;ecdsa.GenerateKey&lt;/em&gt;，测试中回放同一串字节，须得同值，且每一字节俱见其用。">
-          Both are checked against Go: fixed byte streams go into <em>crypto/rand.Int</em> and
-          <em>ecdsa.GenerateKey</em>, and the tests replay those same bytes and expect the same
-          values, every byte used.
+        <p class="prose" data-zh="两者的读法都用固定的字节流核过：同一串字节，别家实现读出的值与本库相同，而且每一字节都用上了。">
+          Both read-outs are pinned to fixed byte streams: the same bytes, read by an independent
+          implementation of the same rule, give the same number, and every byte is accounted for.
         </p>
       </div>
 
 <div>
-        <div class="code"><span class="c" data-zh="// below(1000)：999 需十位，抽二字节">// below(1000): 999 needs 10 bits, draw 2 bytes</span>
+        <div class="code"><span class="c" data-zh="// below(1000)：999 需要 10 位，抽 2 个字节">// below(1000): 999 needs 10 bits, draw 2 bytes</span>
 <span class="k">loop</span> {
-  source.fill(draw)          <span class="c" data-zh="// 二字节">// two bytes</span>
-  draw[<span class="s">0</span>] = draw[<span class="s">0</span>] &amp; <span class="s">0x03</span>    <span class="c" data-zh="// 高六位置零">// clear the top six</span>
+  source.fill(draw)          <span class="c" data-zh="// 两个字节">// two bytes</span>
+  draw[<span class="s">0</span>] = draw[<span class="s">0</span>] &amp; <span class="s">0x03</span>    <span class="c" data-zh="// 高六位清零">// clear the top six</span>
   <span class="k">let</span> v = be(draw)
   <span class="k">if</span> v &lt; <span class="s">1000</span> { <span class="k">return</span> v }
 }
 
-<span class="c" data-zh="// 重抽之望数不及二，大抵一抽即过">// fewer than two draws on average</span></div>
+<span class="c" data-zh="// 平均不到两次就能通过">// fewer than two draws on average</span></div>
 
-        <p class="aside-note" data-zh="&lt;b&gt;below(1 &lt;&lt; k)&lt;/b&gt; 绝不重抽，掩码恰可容纳。唯 bound 非 2 之幂者，方付此循环之费。">
+        <p class="aside-note" data-zh="&lt;b&gt;below(1 &lt;&lt; k)&lt;/b&gt; 不会重抽，掩码刚好够用。只有 bound 不是 2 的幂时才要进这个循环。">
           <b>below(1 &lt;&lt; k)</b> never redraws — the mask already fits. Only a bound that is not a
           power of two pays for the loop.
         </p>
@@ -993,7 +991,7 @@ body[data-lang="zh"] .shard__key em{
       <div class="shard__face">
         <svg class="shard__cracks" id="shard-cracks" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div class="shard__head">
-          <b data-zh="二百之界，二十桶">bound 200 · twenty buckets</b>
+          <b data-zh="bound 200，二十个桶">bound 200 · twenty buckets</b>
           <span class="shard__key">
             <i class="chip chip--blue"></i><em data-zh="青花 · below">cobalt · below</em>
             <i class="chip chip--red"></i><em data-zh="釉里红 · 取模">copper-red · modulo</em>
@@ -1003,7 +1001,7 @@ body[data-lang="zh"] .shard__key em{
         <svg id="hist-svg" viewBox="0 0 760 200" preserveAspectRatio="none" role="img"
              aria-label="counts per bucket, below against modulo"></svg>
         <div class="shard__foot">
-          <span data-zh="等概则每桶整百，即二千除以二十。取模者前六桶见厚，余者见薄，其偏可见。">Equal odds put a hundred in every bucket, two thousand over twenty. The modulo bars run thick at the low end and thin at the high, and the tilt is plain to see.</span>
+          <span data-zh="机会均等的话，每个桶正好一百，也就是二千除以二十。取模的那组前几个桶明显偏厚，越往后越薄，偏心一眼看得出来。">Equal odds put a hundred in every bucket, two thousand over twenty. The modulo bars run thick at the low end and thin at the high, and the tilt is plain to see.</span>
           <span class="face__tag" data-zh="月白 · 计数">moon-white · tally</span>
         </div>
       </div>
@@ -1019,7 +1017,7 @@ body[data-lang="zh"] .shard__key em{
         <span class="sec__no" data-zh="四">04</span>
         <h2 class="sec__title" data-zh="接口">API</h2>
       </div>
-      <p class="sec__note" data-zh="全部公开项，按包分列，无一遗漏。">Every public item, package by package. Nothing left out.</p>
+      <p class="sec__note" data-zh="全部公开项，按包列出，一项不少。">Every public item, package by package. Nothing left out.</p>
     </div>
 
     <div class="face face--cobalt">
@@ -1030,50 +1028,50 @@ body[data-lang="zh"] .shard__key em{
         <div class="api__rows">
         <div class="api__row" data-item="bytes">
           <div class="api__sig">pub fn[S : Source] bytes(n : Int32, source : S) -&gt; Bytes raise Unavailable</div>
-          <div class="api__g" data-zh="均匀字节 n 枚，不多不少。n 为负乃调用之误，故直接 abort，不假装给了空串。">N uniform bytes, no more and no fewer. A negative n is a caller's mistake, so it aborts rather than pretend to hand back nothing.</div>
+          <div class="api__g" data-zh="n 个均匀字节，不多不少。n 为负是调用方的错，直接中止，不会假装给了空串。">N uniform bytes, no more and no fewer. A negative n is a caller's mistake, so it aborts rather than pretend to hand back nothing.</div>
         </div>
         <div class="api__row" data-item="below">
           <div class="api__sig">pub fn[S : Source] below(bound : BytesView, source : S) -&gt; Bytes raise Unavailable</div>
-          <div class="api__g" data-zh="[0, bound) 之内，宽同 bound。掩码舍去高位，越界即重抽；bound 为 1 不取字节，为 0 则 abort。">[0, bound), as wide as the bound. Mask the unused high bits, redraw while at or above bound. A bound of 1 reads nothing; zero aborts.</div>
+          <div class="api__g" data-zh="[0, bound) 之内，宽度同 bound。多余的高位清掉，越界就重抽；bound 为 1 时不读字节，为 0 则中止。">[0, bound), as wide as the bound. Mask the unused high bits, redraw while at or above bound. A bound of 1 reads nothing; zero aborts.</div>
         </div>
         <div class="api__row" data-item="scalar">
           <div class="api__sig">pub fn[S : Source] scalar(order : BytesView, source : S) -&gt; Bytes raise Unavailable</div>
-          <div class="api__g" data-zh="[1, order)，宽同 order。取左起之位，遇零或越界则重抽，即 FIPS 186-5 A.2.2 之法。">[1, order), as wide as the order. Keep the leftmost bits, redraw on zero or overflow: the FIPS 186-5 A.2.2 draw.</div>
+          <div class="api__g" data-zh="[1, order)，宽度同 order。留最左边的位，遇到零或越界就重抽，即 FIPS 186-5 A.2.2 的取法。">[1, order), as wide as the order. Keep the leftmost bits, redraw on zero or overflow: the FIPS 186-5 A.2.2 draw.</div>
         </div>
         <div class="api__row" data-item="Source">
           <div class="api__sig">pub(open) trait Source {<br>  fn fill(self, buf : FixedArray[Byte]) -&gt; Unit raise Unavailable<br>}</div>
-          <div class="api__g" data-zh="全库唯一须自具者。填满缓冲，不成则 raise；他物实现此约，即可接入，不必改本库一行。">The one thing you implement. Fill the buffer or raise; anything that keeps this contract plugs in without a line changed here.</div>
+          <div class="api__g" data-zh="全库只有这一处要你自己实现。把缓冲填满，做不到就 raise；任何东西实现了它就能接进来，本库一行都不用改。">The one thing you implement. Fill the buffer or raise; anything that keeps this contract plugs in without a line changed here.</div>
         </div>
         <div class="api__row" data-item="Replay">
           <div class="api__sig">pub struct Replay<br>Replay::new(data : Bytes) -&gt; Self</div>
-          <div class="api__g" data-zh="依次发尽而止之源。由字节构造，不碰平台，故测试向量得以此回放。">A source that hands out what it was given, in order, then stops. Built from bytes alone, so test vectors replay through it.</div>
+          <div class="api__g" data-zh="按顺序把给定的字节发完就停的来源。只由字节构造，不碰平台，所以可以把一次抽取钉在固定的字节序列上。">A source that hands out what it was given, in order, then stops. Built from bytes alone, so a draw can be pinned to a fixed sequence.</div>
         </div>
         <div class="api__row" data-item="Replay::fill">
           <div class="api__sig">Replay::fill(self, buf : FixedArray[Byte]) -&gt; Unit raise Unavailable</div>
-          <div class="api__g" data-zh="余量不足一填，则尽发所余而 raise Exhausted；一字节也不凭空生出。">When fewer bytes remain than the buffer wants, it gives every byte left and raises Exhausted. Not one byte is invented.</div>
+          <div class="api__g" data-zh="要的比剩下的多时，直接 raise Exhausted，缓冲里一个字节也不留下；它不会凭空造字节。">When fewer bytes remain than the buffer wants, it copies nothing, leaves the buffer as it was, and raises Exhausted. Not one byte is invented.</div>
         </div>
         <div class="api__row" data-item="Replay::remaining">
           <div class="api__sig">Replay::remaining(self) -&gt; Int32</div>
-          <div class="api__g" data-zh="尚余几字节可发。向量对不上时，先问此数。">How many bytes are still to give. Ask this first when a vector does not match.</div>
+          <div class="api__g" data-zh="还剩几个字节可发。序列对不上时，先看这个数。">How many bytes are still to give. Ask this first when a sequence does not line up.</div>
         </div>
         <div class="api__row" data-item="Unavailable">
           <div class="api__sig">pub(all) suberror Unavailable {<br>  Platform<br>  Exhausted<br>  Failed(String)<br>} derive(Eq, Debug) · impl Show</div>
-          <div class="api__g" data-zh="Platform 平台无源；Exhausted 回放已尽；Failed 自定来源之败，缘由原样陈于调用方。具 Eq、Show、Debug，故可比、可印、可记。">Platform: no source; Exhausted: the replay is spent; Failed: your source failed, and its reason reaches the caller unchanged. Eq, Show and Debug come with it.</div>
+          <div class="api__g" data-zh="Platform：平台没有来源；Exhausted：回放用完了；Failed：你自己的来源失败了，原因原样交给调用方。带 Eq、Show、Debug，可以比较、打印、记录。">Platform: no source; Exhausted: the replay is spent; Failed: your source failed, and its reason reaches the caller unchanged. Eq, Show and Debug come with it.</div>
         </div>
         </div>
-        <div class="api__grp"><span>moonbitstack/moonseed/system</span><i data-zh="值一 · 类型二">1 value · 2 types</i></div>
+        <div class="api__grp"><span>moonbitstack/moonseed/system</span><i data-zh="值一 · 类型一 · 函数一">1 value · 1 type · 1 function</i></div>
         <div class="api__rows">
         <div class="api__row" data-item="source">
           <div class="api__sig">pub let source : System</div>
-          <div class="api__g" data-zh="平台之熵，全库唯一一处碰平台者。JS 取 crypto，wasm 取 WASI random_get，native 委诸运行时。">The platform's entropy — the one place this library touches the platform. crypto on JS, WASI random_get on wasm, the runtime on native.</div>
+          <div class="api__g" data-zh="平台的熵，全库唯一碰平台的地方。JS 用 crypto，wasm 用 WASI random_get，native 交给运行时。">The platform's entropy — the one place this library touches the platform. crypto on JS, WASI random_get on wasm, the runtime on native.</div>
         </div>
         <div class="api__row" data-item="System">
           <div class="api__sig">pub struct System {}</div>
-          <div class="api__g" data-zh="空记录，无一物可存：每次 fill 都重新问平台，不留缓存。">An empty record that holds nothing: every fill asks the platform again, and nothing is cached between them.</div>
+          <div class="api__g" data-zh="空记录，什么都不存：每次 fill 都重新问平台，中间不缓存。">An empty record that holds nothing: every fill asks the platform again, and nothing is cached between them.</div>
         </div>
         <div class="api__row" data-item="System::fill">
           <div class="api__sig">System::fill(self, buf : FixedArray[Byte]) -&gt; Unit raise Unavailable</div>
-          <div class="api__g" data-zh="一呼一应。取不足数或取之不得，则 raise Platform，不转向他处。">One call, one answer. Short or refused, it raises Platform and turns nowhere else.</div>
+          <div class="api__g" data-zh="一次调用，一次回答。给少了或给不出来就 raise Platform，不问别处。">One call, one answer. Short or refused, it raises Platform and turns nowhere else.</div>
         </div>
         </div>
         <!-- api:end -->
@@ -1082,32 +1080,32 @@ body[data-lang="zh"] .shard__key em{
   </div>
 </section>
 
-<!-- ==================== 05 · 边界 ==================== -->
+<!-- ==================== 05 · 限制 ==================== -->
 <section class="sec" id="limits">
   <div class="sheet">
     <div class="sec__head">
       <div class="sec__plate">
         <span class="sec__no" data-zh="五">05</span>
-        <h2 class="sec__title" data-zh="界限">Limits</h2>
+        <h2 class="sec__title" data-zh="限制">Limits</h2>
       </div>
-      <p class="sec__note" data-zh="本非发生器，亦不以发生器自居。">It is not a generator, and does not pretend to be one.</p>
+      <p class="sec__note" data-zh="它不是发生器，也不假装是。">It is not a generator, and does not pretend to be one.</p>
     </div>
 
     <div class="cols">
       <div class="col">
         <b>01</b>
-        <h3 data-zh="无种无流">No generator</h3>
-        <p data-zh="无种子，无流，亦无「一种子生一串数」之说。若求可复现之流，则用 &lt;em&gt;moonrand&lt;/em&gt;。二者分置，正使任何一方不能暗自代决。">No seed, no stream, no "same seed gives the same numbers". For a reproducible stream, use <em>moonrand</em>. Keeping these apart is what stops either from deciding for you.</p>
+        <h3 data-zh="没有种子">No generator</h3>
+        <p data-zh="没有种子，没有流，也没有「同一个种子生出同一串数」这回事。要可复现的流，用 &lt;em&gt;moonrand&lt;/em&gt;。两者分开，谁也不能替你暗中决定。">No seed, no stream, no "same seed gives the same numbers". For a reproducible stream, use <em>moonrand</em>. Keeping these apart is what stops either from deciding for you.</p>
       </div>
       <div class="col">
         <b>02</b>
-        <h3 data-zh="无熵则止">No WASI, no bytes</h3>
-        <p data-zh="根包不涉平台。链入 &lt;em&gt;system&lt;/em&gt;，即链入平台那一次调用。宿主若无 WASI，则用根包，自具 Source。">The root package touches no platform. Linking <em>system</em> links the platform's one call. A wasm host without WASI uses the root package and a source of its own.</p>
+        <h3 data-zh="没有熵就停">No WASI, no bytes</h3>
+        <p data-zh="根包不碰平台。链进 &lt;em&gt;system&lt;/em&gt; 就链进了平台的那一次调用。宿主没有 WASI，就用根包加自己的 Source。">The root package touches no platform. Linking <em>system</em> links the platform's one call. A wasm host without WASI uses the root package and a source of its own.</p>
       </div>
       <div class="col">
         <b>03</b>
-        <h3 data-zh="不重不延">No retry, no stretching</h3>
-        <p data-zh="一呼一应。是否重试、重试几度，皆调用方之策。所为者，搬运熵而已，非拉伸熵：32 字节不因之成 64 字节之密。">One call, one answer; whether to retry is the caller's policy. It moves entropy, it does not stretch it — 32 bytes do not become a 64-byte secret.</p>
+        <h3 data-zh="不重试，不拉长">No retry, no stretching</h3>
+        <p data-zh="一次调用，一次回答。要不要重试、重试几次，是调用方的事。它只把熵搬过来，不会把熵拉长：32 个字节不会因此变成 64 字节的秘密。">One call, one answer; whether to retry is the caller's policy. It moves entropy, it does not stretch it — 32 bytes do not become a 64-byte secret.</p>
       </div>
     </div>
 
@@ -1118,15 +1116,15 @@ body[data-lang="zh"] .shard__key em{
         <span class="face__tag">frosted · partition</span>
         <div class="lim">
           <b data-zh="不留副本">It keeps no secret</b>
-          <p data-zh="自来源取字节，原样相付。缓冲归调用方，擦与不擦，悉听自便。本库不申请、不缓存、不留底。">It takes bytes from a source and hands them over. The buffer is yours to wipe or not; this crate does not allocate a cache or keep a copy.</p>
+          <p data-zh="从来源取到字节，原样交给调用方。缓冲是你的，擦不擦随你。本库不另申请、不缓存、不留底。">It takes bytes from a source and hands them over. The buffer is yours to wipe or not; this crate does not allocate a cache or keep a copy.</p>
         </div>
         <div class="lim">
-          <b data-zh="不避时序">No side-channel story</b>
-          <p data-zh="拒绝之环，于时序留痕。若求恒定时间，则须由调用方将重抽之数压至可略，或另择取样之法。">The rejection loop leaves a timing trace. Constant time is the caller's problem: bound the retries, or sample differently.</p>
+          <b data-zh="不管时序">No side-channel story</b>
+          <p data-zh="拒绝循环会在时间上留下痕迹。要恒定时间，得由调用方把重抽次数压到可以忽略，或者换一种抽样方法。">The rejection loop leaves a timing trace. Constant time is the caller's problem: bound the retries, or sample differently.</p>
         </div>
         <div class="lim">
           <b data-zh="不验平台">The platform is not verified</b>
-          <p data-zh="&lt;em&gt;@system.source&lt;/em&gt; 只陈平台所报，不察平台是否已破。根本之信，在操作系统一层，不在此处。">@system.source reports what the platform says. It does not judge whether the platform is compromised. That trust sits in the OS, not here.</p>
+          <p data-zh="&lt;em&gt;@system.source&lt;/em&gt; 只讲平台报了什么，不判断平台是否已经失守。这份信任在操作系统那一层，不在这里。">@system.source reports what the platform says. It does not judge whether the platform is compromised. That trust sits in the OS, not here.</p>
         </div>
       </div>
     </div>
@@ -1138,7 +1136,7 @@ body[data-lang="zh"] .shard__key em{
     <div><span class="mono" data-zh="版本">rev</span><b id="rev-value">0.1.1</b></div>
     <div><span class="mono" data-zh="许可">licence</span><b>Apache-2.0</b></div>
     <div><span class="mono" data-zh="本页字节">bytes</span><b id="foot-seed">—</b></div>
-    <div class="foot__next"><span data-zh="另一层 · 可播种之流">the other layer · a seedable stream</span><span><a href="https://moonbitstack.github.io/moonrand/" id="mr-link">moonrand · ChaCha12</a></span></div>
+    <div class="foot__next"><span data-zh="另一层 · 可播种的流">the other layer · a seedable stream</span><span><a href="https://moonbitstack.github.io/moonrand/" id="mr-link">moonrand · ChaCha12</a></span></div>
   </div>
 </footer>
 
@@ -1163,7 +1161,7 @@ body[data-lang="zh"] .shard__key em{
       document.documentElement.lang = (next === 'zh') ? 'zh-Hans' : 'en-US';
       document.body.setAttribute('data-lang', next);
       document.title = (next === 'zh')
-        ? 'MoonSeed · 安全的随机字节，无偏的取样'
+        ? 'MoonSeed · 安全的随机字节，无偏取样'
         : 'moonseed — secure bytes, no seed';
       document.querySelectorAll('#lang button').forEach(function(b){
         b.classList.toggle('is-on', b.getAttribute('data-lang') === next);
