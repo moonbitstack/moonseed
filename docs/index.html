@@ -484,8 +484,12 @@ body[data-lang="zh"] .lim b::after{
 
 /* 代码横过界时，不画横杆——杆会把瓷切一刀；改在右上角嵌一颗滚珠，
    上下拖动，即左右看字。珠有釉、有圈、有影，和瓷片是同一窑的。 */
-.code{ scrollbar-width:none; -ms-overflow-style:none }
+.code{ -ms-overflow-style:none }
 .code::-webkit-scrollbar{ display:none; width:0; height:0 }
+/* 代码横过界有瓷珠可拖，故藏起系统那一根；标准属性只给不认伪元素的浏览器 */
+@supports not selector(::-webkit-scrollbar){
+  .code{ scrollbar-width:none }
+}
 .beadrail{
   position:absolute; right:14px; top:48px; bottom:20px; width:.5px; z-index:2;
   background:linear-gradient(180deg, rgba(35,71,127,0), rgba(35,71,127,.34) 8%,
