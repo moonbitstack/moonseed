@@ -281,8 +281,9 @@ body[data-lang="zh"] .wm{ letter-spacing:.03em; padding:.18em 0 }
 /* 那块瓷 */
 .stage{ display:flex; flex-direction:column; align-items:center }
 .stage__note{
-  margin-bottom:14px; max-width:22em; text-align:right;
+  margin-bottom:14px; width:100%; max-width:320px; text-align:left;
   font-size:11.5px; line-height:1.9; color:var(--ink-3);
+  text-wrap:pretty;
 }
 .gtile{
   position:relative; width:320px; height:320px;
@@ -764,7 +765,6 @@ body[data-lang="zh"] .shard__key em{
   body[data-lang="zh"] .sec__note{ flex:1 1 100%; margin-left:0; text-align:left; max-width:100% }
   .hero__in{ grid-template-columns:1fr; gap:44px }
   .stage{ align-items:flex-start }
-  .stage__note{ text-align:left; max-width:26em }
   .two{ grid-template-columns:minmax(0,1fr); gap:34px }
   .cols{ grid-template-columns:1fr; gap:28px }
   .sec__head{ flex-wrap:wrap; gap:10px }
