@@ -395,17 +395,18 @@ body[data-lang="zh"] .prose em{ text-indent:0 }
 /* ---------- 中文小标题 · 一块小瓷片 ----------
    章次与题名同处一瓷。只取对角两枚回纹。纹的开口在外框的一条边上；
    这里把纹翻过来，让开口落在右上，于是从口里出去的那一笔正是顶边，
-   引线接着它写，同高同向，粗细收一档。角上没有第三笔垂下来，所以
-   不是把线贴在角上，是线从口里走出去。右下那枚倒转过来，同理。 */
+   引线接着它写，同高同向，同色，只细一档。角上没有第三笔垂下来，
+   所以不是把线贴在角上，是线从口里走出去。右下那枚倒转过来，同理。
+   右边留白比左边宽出一枚朱印，为的是让题名在瓷上居中，不是偏右。 */
 body[data-lang="zh"] .sec__plate{
   position:relative; display:inline-flex; align-items:baseline; justify-content:center; gap:0;
-  padding:8px 25px 8px;
+  padding:8px 49.6px 8px 25px;
   color:#1A2220;
   background:
     url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2713%27 height=%2713%27 viewBox=%270 0 13 13%27%3E%3Cpath d=%27M12.5 0.5H0.5V12.5H12.5V5H4V9.5H8.5%27 fill=%27none%27 stroke=%27%2323477F%27 stroke-width=%27.85%27/%3E%3C/svg%3E") left 4px top 4px / 13px 13px no-repeat,
     url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2713%27 height=%2713%27 viewBox=%270 0 13 13%27%3E%3Cg transform=%27translate(13,13) rotate(180)%27%3E%3Cpath d=%27M12.5 0.5H0.5V12.5H12.5V5H4V9.5H8.5%27 fill=%27none%27 stroke=%27%2323477F%27 stroke-width=%27.85%27/%3E%3C/g%3E%3C/svg%3E") right 4px bottom 4px / 13px 13px no-repeat,
-    linear-gradient(rgba(35,71,127,.30),rgba(35,71,127,.30)) left 16.5px top 4.25px / 24px .5px no-repeat,
-    linear-gradient(rgba(35,71,127,.30),rgba(35,71,127,.30)) right 16.5px bottom 4.25px / 24px .5px no-repeat,
+    linear-gradient(#23477F,#23477F) left 16.5px top 4.25px / 24px .5px no-repeat,
+    linear-gradient(#23477F,#23477F) right 16.5px bottom 4.25px / 24px .5px no-repeat,
     linear-gradient(180deg, rgba(255,255,255,.74), rgba(244,249,247,.16));
   box-shadow:
     inset 0 0 0 .5px rgba(35,71,127,.30),
