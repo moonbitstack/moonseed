@@ -393,20 +393,17 @@ body[data-lang="zh"] .prose em{ text-indent:0 }
   font-size:12px; line-height:1.95; color:var(--ink-3); text-align:right;
 }
 /* ---------- 中文小标题 · 一块小瓷片 ----------
-   章次与题名同处一瓷。只取对角两枚回纹。纹的开口在外框的一条边上；
-   这里把纹翻过来，让开口落在右上，于是从口里出去的那一笔正是顶边，
-   引线接着它写，同高同向，同色，只细一档。角上没有第三笔垂下来，
-   所以不是把线贴在角上，是线从口里走出去。右下那枚倒转过来，同理。
-   右边留白比左边宽出一枚朱印，为的是让题名在瓷上居中，不是偏右。 */
+   瓷上只有题名是字，居中排；回纹与朱印都是装饰，不占版面。
+   回纹与引线画在同一张 SVG 的同一笔里：引线就是纹最外那一笔的延长，
+   同色 .85、同一笔宽，粗细不收，从开口里出去，角上不留第三笔。
+   朱印绝对定位在左上，故题名居中与否与它无关。 */
 body[data-lang="zh"] .sec__plate{
   position:relative; display:inline-flex; align-items:baseline; justify-content:center; gap:0;
-  padding:8px 49.6px 8px 25px;
+  padding:8px 56px;
   color:#1A2220;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2713%27 height=%2713%27 viewBox=%270 0 13 13%27%3E%3Cpath d=%27M12.5 0.5H0.5V12.5H12.5V5H4V9.5H8.5%27 fill=%27none%27 stroke=%27%2323477F%27 stroke-width=%27.85%27/%3E%3C/svg%3E") left 4px top 4px / 13px 13px no-repeat,
-    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2713%27 height=%2713%27 viewBox=%270 0 13 13%27%3E%3Cg transform=%27translate(13,13) rotate(180)%27%3E%3Cpath d=%27M12.5 0.5H0.5V12.5H12.5V5H4V9.5H8.5%27 fill=%27none%27 stroke=%27%2323477F%27 stroke-width=%27.85%27/%3E%3C/g%3E%3C/svg%3E") right 4px bottom 4px / 13px 13px no-repeat,
-    linear-gradient(#23477F,#23477F) left 16.5px top 4.25px / 24px .5px no-repeat,
-    linear-gradient(#23477F,#23477F) right 16.5px bottom 4.25px / 24px .5px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2737%27 height=%2713%27 viewBox=%270 0 37 13%27%3E%3Cpath d=%27M37 0.5H0.5V12.5H12.5V5H4V9.5H8.5%27 fill=%27none%27 stroke=%27%2323477F%27 stroke-width=%27.85%27/%3E%3C/svg%3E") left 4px top 4px / 37px 13px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2737%27 height=%2713%27 viewBox=%270 0 37 13%27%3E%3Cg transform=%27translate(37,13) rotate(180)%27%3E%3Cpath d=%27M37 0.5H0.5V12.5H12.5V5H4V9.5H8.5%27 fill=%27none%27 stroke=%27%2323477F%27 stroke-width=%27.85%27/%3E%3C/g%3E%3C/svg%3E") right 4px bottom 4px / 37px 13px no-repeat,
     linear-gradient(180deg, rgba(255,255,255,.74), rgba(244,249,247,.16));
   box-shadow:
     inset 0 0 0 .5px rgba(35,71,127,.30),
@@ -420,14 +417,14 @@ body[data-lang="zh"] .sec__plate::before{
 }
 /* 章次：一枚小朱印，随题同在瓷上 */
 body[data-lang="zh"] .sec__no{
+  position:absolute; left:25px; top:50%;
   display:inline-flex; align-items:center; justify-content:center;
   width:18px; height:18px; line-height:1;
   font-family:var(--serif); font-size:11px; letter-spacing:0;
   color:#9E4030;
   box-shadow:inset 0 0 0 .5px rgba(158,64,48,.44);
   background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(248,242,240,.10));
-  margin-right:.60em;
-  transform:translateY(-1px);
+  transform:translateY(calc(-50% - 1px));
 }
 /* 题名：只写字，不再自带底子 */
 body[data-lang="zh"] .sec__title{
