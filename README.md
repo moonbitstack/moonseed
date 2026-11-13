@@ -6,8 +6,9 @@
 
 <p>
 <a href="https://moonbitstack.github.io/moonseed/">Home</a> ·
-<a href="https://moonbitstack.github.io/moonseed/#start">Guide</a> ·
-<a href="https://moonbitstack.github.io/moonseed/#api">API</a> ·
+<a href="https://moonbitstack.github.io/moonseed/guide.html">Guide</a> ·
+<a href="https://moonbitstack.github.io/moonseed/api.html">API</a> ·
+<a href="https://moonbitstack.github.io/moonseed/sampling.html">Bench</a> ·
 <a href="https://mooncakes.io/docs/moonbitstack/moonseed">mooncakes</a>
 </p>
 
@@ -25,7 +26,8 @@ test "draw" {
 ```
 
 `moon run src/examples/tour` walks the whole API once, so you can watch it ask
-for bytes.
+for bytes. The guide goes from an empty package to a key, a range and a scalar;
+the reference lists every item with the example beside it.
 
 ## Packages
 

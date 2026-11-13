@@ -4,3 +4,4 @@
 _*
 target/
 docs/engine/
+__pycache__/

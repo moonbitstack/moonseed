@@ -1,4 +1,4 @@
-"""Compile every MoonBit block in README.md and docs/skills/*/SKILL.md against this module's source.
+"""Compile every MoonBit block in README.md, scripts/guide.md and docs/skills/*/SKILL.md.
 
 A reader pastes these blocks into a project, so each one has to compile as written. The blocks of
 one file are read in order, the way the page reads: a block may use a name that an earlier block of
@@ -95,7 +95,11 @@ def main():
         return 0
     subprocess.run([args.moon, "update"], cwd=ROOT, capture_output=True)
     aliases = packages(module, src, deps)
-    files = [Path(f) for f in args.files] or [ROOT / "README.md", *sorted((ROOT / "docs" / "skills").glob("*/SKILL.md"))]
+    files = [Path(f) for f in args.files] or [
+        ROOT / "README.md",
+        ROOT / "scripts" / "guide.md",
+        *sorted((ROOT / "docs" / "skills").glob("*/SKILL.md")),
+    ]
     failed = 0
     for file in files:
         file = file if file.is_absolute() else ROOT / file

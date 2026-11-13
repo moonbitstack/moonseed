@@ -45,8 +45,11 @@ jobs:
           moon info --target all
           git diff --exit-code
 
-      - name: api table matches the interfaces
-        run: python3 scripts/gen_api.py --check
+      - name: the pages match their source
+        run: |
+          python3 scripts/gen_api.py
+          python3 scripts/gen_guide.py
+          git diff --exit-code
 
       - name: configure pages
         uses: actions/configure-pages@v6
