@@ -1,0 +1,234 @@
+/* The pages the library grew after the home page: the reference, the guide,
+   the sampling bench. Same glaze, same rule — no radii, hairlines, one accent.
+   Everything here is a component the home page never needed. */
+
+/* ---------- 页首：比首屏矮一截，是章节不是封面 ---------- */
+.dochead{ padding:56px 0 34px }
+.dochead__eyebrow{ color:var(--ink-3) }
+.dochead__title{
+  margin-top:16px;
+  font-family:var(--serif); font-weight:400;
+  font-size:clamp(34px,4.6vw,52px); line-height:1.08; letter-spacing:.1em;
+  color:#141A1C;
+}
+.dochead__lede{
+  margin-top:16px; max-width:min(44em,100%);
+  font-size:14px; line-height:2.05; color:var(--ink-2);
+}
+.dochead__meta{
+  margin-top:24px; padding-top:14px;
+  display:flex; gap:34px; flex-wrap:wrap;
+  border-top:.5px solid var(--line-soft);
+  font-family:var(--mono); font-size:9px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.dochead__meta b{
+  display:block; margin-bottom:3px;
+  font-weight:400; font-size:16px; letter-spacing:.02em; color:var(--cobalt);
+}
+.dochead__jump{ margin-top:16px; font-size:12px; color:var(--ink-3) }
+.dochead__jump a{ color:var(--cobalt); text-decoration:none; border-bottom:.5px solid var(--line) }
+.dochead__jump a:hover{ border-color:var(--cobalt) }
+
+/* ---------- 参考页 ---------- */
+.sec__title--pkg{
+  font-family:var(--mono); font-weight:400; font-size:15px;
+  letter-spacing:.02em; overflow-wrap:anywhere;
+}
+.ref__grp{
+  margin:38px 0 0; padding-bottom:8px;
+  display:flex; align-items:baseline; gap:10px;
+  font-family:var(--serif); font-weight:500; font-size:15px; letter-spacing:.18em;
+}
+.ref__grp::after{
+  content:''; flex:1 1 auto; height:.5px;
+  background:linear-gradient(90deg, var(--line), transparent);
+}
+.ref__grp i{
+  font-style:normal; font-family:var(--mono); font-size:9px;
+  letter-spacing:.1em; color:var(--cinnabar);
+}
+.item{ padding:18px 0 20px; border-top:.5px solid var(--line-soft); max-width:min(46rem,100%) }
+.item:first-of-type{ border-top:0 }
+.item--nested{
+  margin-left:6px; padding-left:20px;
+  border-left:1.5px solid rgba(35,71,127,.14);
+}
+.item__head{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap }
+.item__kind{
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--cinnabar);
+}
+.item__name{
+  font-family:var(--mono); font-weight:500; font-size:13px;
+  letter-spacing:0; color:var(--ink);
+}
+.item__anchor{
+  margin-left:auto; font-family:var(--mono); font-size:11px;
+  color:transparent; text-decoration:none;
+}
+.item:hover .item__anchor, .item__anchor:focus-visible{ color:var(--ink-3) }
+.item__sig{
+  margin-top:9px; padding:11px 15px 12px;
+  white-space:pre-wrap; overflow-wrap:anywhere;
+  font-size:11.5px; line-height:1.85;
+  border-left:1.5px solid var(--cobalt);
+}
+.item__doc{ margin-top:12px }
+.item__doc p{ font-size:13px; line-height:2; color:var(--ink-2) }
+.item__doc p + p{ margin-top:9px }
+.item__doc a{ color:var(--cobalt) }
+.vars{
+  margin-top:11px;
+  display:grid; grid-template-columns:max-content minmax(0,1fr);
+  gap:5px 18px; align-items:baseline;
+}
+.vars dt{ font-family:var(--mono); font-size:11.5px; color:var(--cobalt) }
+.vars dd{ font-size:12.5px; line-height:1.85; color:var(--ink-3) }
+
+/* 例子：与页面的样例同一个印法，标签说清它是哪一种 */
+.eg{ margin-top:15px }
+.eg__tag{
+  display:block; margin-bottom:7px;
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.eg__code{ padding:13px 16px 14px }
+
+/* 输出：界面上是印出来的字，不是代码，所以没有左边那道钴蓝 */
+.out{
+  margin-top:9px; padding:11px 15px 12px;
+  border-left:1.5px solid rgba(35,71,127,.3);
+  background:rgba(35,71,127,.035);
+  font-family:var(--mono); font-size:11px; line-height:1.95;
+  color:var(--ink-2); white-space:pre-wrap; overflow-wrap:anywhere;
+}
+.out__tag{
+  display:block; margin-bottom:6px;
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+
+/* ---------- 指南 ---------- */
+.step + .step{ margin-top:30px }
+.step h3{
+  margin-bottom:12px; padding-bottom:9px;
+  font-family:var(--serif); font-weight:500; font-size:16px; letter-spacing:.08em;
+  border-bottom:.5px solid var(--line-soft);
+}
+.step ul{ margin:10px 0 0 2px; list-style:none }
+.step li{
+  position:relative; padding-left:18px; margin-top:7px;
+  font-size:12.5px; line-height:1.95; color:var(--ink-2);
+}
+.step li::before{
+  content:''; position:absolute; left:2px; top:.72em;
+  width:5px; height:5px; background:var(--cobalt); opacity:.5;
+}
+.guide__col + .guide__col{ margin-top:0 }
+.pin{
+  margin-top:14px; padding:11px 15px 12px;
+  border:.5px solid var(--line); background:linear-gradient(180deg, rgba(255,255,255,.6), rgba(241,245,243,.28));
+  font-size:12.5px; line-height:1.95; color:var(--ink-2);
+}
+.pin b{ font-family:var(--mono); font-size:11px; font-weight:400; color:var(--cinnabar); letter-spacing:.08em }
+
+/* ---------- 取样台 ---------- */
+.lab{
+  margin-top:26px; padding:26px 28px 24px;
+  background:
+    radial-gradient(96% 76% at 16% 2%, rgba(255,255,255,.96), rgba(255,255,255,0) 60%),
+    radial-gradient(72% 60% at 92% 104%, rgba(176,204,194,.30), transparent 68%),
+    linear-gradient(156deg,#FCFDF9,#F1F6F1 44%,#E6EEE8 100%);
+  box-shadow:
+    inset 0 0 0 .5px rgba(35,71,127,.16),
+    inset 0 1.5px 0 #FFFFFF,
+    inset 0 -2px 0 rgba(54,86,76,.22),
+    0 1px 0 rgba(48,68,60,.18),
+    0 12px 26px -20px rgba(40,70,60,.55);
+}
+.lab__bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding-bottom:14px; border-bottom:.5px solid var(--line-soft) }
+.lab__bar label{ font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3) }
+.lab__bar input{
+  width:96px; padding:6px 9px; border:.5px solid var(--line);
+  background:rgba(255,255,255,.7); color:var(--ink);
+  font-family:var(--mono); font-size:12px;
+}
+.lab__bar button{
+  padding:7px 16px 8px; border:0; cursor:pointer;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase;
+  color:#F2F7FB;
+  background:linear-gradient(152deg,#3B62A0,#23477F 56%,#16305A);
+  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.26), inset 0 1px 0 rgba(255,255,255,.34), 0 1px 0 rgba(24,40,60,.3);
+}
+.lab__bar button:hover{ filter:brightness(1.04) }
+.lab__bar button:disabled{ opacity:.45; cursor:default; filter:none }
+.lab__chip{
+  padding:6px 10px 7px; border:.5px solid var(--line); cursor:pointer;
+  font-family:var(--mono); font-size:10px; color:var(--ink-2);
+  background:rgba(255,255,255,.5);
+}
+.lab__chip:hover{ color:var(--cobalt); border-color:rgba(35,71,127,.4) }
+.draw{
+  margin-top:18px; display:grid; grid-template-columns:auto minmax(0,1fr);
+  gap:16px 22px; align-items:baseline;
+}
+.draw__label{ font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3) }
+.draw__bytes{ display:flex; gap:7px; flex-wrap:wrap; align-items:flex-end }
+.byte{
+  min-width:38px; padding:7px 6px 6px; text-align:center;
+  font-family:var(--mono); font-size:11.5px; color:var(--ink);
+  background:linear-gradient(180deg,#FFFFFF,#EDF3F0);
+  box-shadow:inset 0 0 0 .5px rgba(35,71,127,.2), 0 1px 0 rgba(48,68,60,.12);
+}
+.byte.is-masked{ color:var(--cinnabar); box-shadow:inset 0 0 0 .5px rgba(172,56,42,.4), 0 1px 0 rgba(48,68,60,.12) }
+.byte__bits{ display:block; margin-top:4px; font-size:8.5px; letter-spacing:.04em; color:var(--ink-3) }
+.draw__note{ font-size:12.5px; line-height:1.9; color:var(--ink-2) }
+.draw__value{
+  font-family:var(--mono); font-size:13px; letter-spacing:.04em;
+  color:var(--cobalt);
+}
+.draw__value.is-over{ color:var(--cinnabar) }
+.tray{ margin-top:16px; padding-top:12px; border-top:.5px solid var(--line-soft) }
+.tray__row{ display:flex; gap:9px; flex-wrap:wrap; margin-top:8px }
+.tally{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.1em;
+  color:var(--ink-3); text-transform:uppercase;
+}
+.tally b{ color:var(--cobalt); font-weight:400 }
+
+@media (width <= 860px){
+  .dochead{ padding:38px 0 26px }
+  .draw{ grid-template-columns:minmax(0,1fr); gap:8px }
+  .item--nested{ margin-left:0; padding-left:14px }
+  .lab{ padding:20px 18px 18px }
+  .dochead__meta{ gap:22px }
+}
+
+.guide__single{ max-width:min(46rem,100%) }
+.guide__col .code + .code, .guide__col .code + .out, .guide__col .out + .code{ margin-top:12px }
+.step + .prose, .prose + .step, .ul + .prose, .pin + .prose{ margin-top:14px }
+
+/* 代码框：这一页没有首页那颗瓷珠，就给它一根自己的细轴。
+   静止时几乎只是一道影，指针进来才显。标准属性只给不认伪元素的浏览器。 */
+.guide__code::-webkit-scrollbar, .eg__code::-webkit-scrollbar{
+  display:block; width:9px; height:9px;
+}
+.guide__code::-webkit-scrollbar-track, .eg__code::-webkit-scrollbar-track{
+  background:rgba(35,71,127,.045);
+  box-shadow:inset .5px 0 0 rgba(35,71,127,.06);
+}
+.guide__code::-webkit-scrollbar-thumb, .eg__code::-webkit-scrollbar-thumb{
+  background:rgba(35,71,127,.16);
+  box-shadow:inset 0 0 0 .5px rgba(35,71,127,.10);
+}
+.guide__code:hover::-webkit-scrollbar-thumb, .eg__code:hover::-webkit-scrollbar-thumb{
+  background:rgba(35,71,127,.30);
+}
+.guide__code::-webkit-scrollbar-corner, .eg__code::-webkit-scrollbar-corner{ background:transparent }
+@supports not selector(::-webkit-scrollbar){
+  .guide__code, .eg__code{
+    scrollbar-width:thin;
+    scrollbar-color:rgba(35,71,127,.30) rgba(35,71,127,.05);
+  }
+}

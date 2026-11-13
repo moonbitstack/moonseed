@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="The rejection loop and a P-521 scalar, drawn step by step by moonseed compiled to wasm.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23A9C9BB'/%3E%3Cpath d='M3 11.5 L12.5 15 L10.5 27' fill='none' stroke='%2323477F' stroke-width='1.3'/%3E%3Cpath d='M12.5 15 L28 9.5' fill='none' stroke='%2323477F' stroke-width='1.3'/%3E%3Cpath d='M12.5 15 L21.5 22.5' fill='none' stroke='%2323477F' stroke-width='1.3'/%3E%3Crect x='24' y='23' width='6' height='6' fill='%23AC382A'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/glaze.css">
+<link rel="stylesheet" href="assets/docs.css">
+<title>moonseed — the draw, step by step</title>
+<style>
+/* 这一页独有的：一次尝试一格，字节按位排开 */
+.attempt{
+  display:grid; grid-template-columns:96px minmax(0,1fr); gap:6px 18px;
+  align-items:baseline; padding:12px 0 13px;
+  border-top:.5px solid var(--line-soft);
+}
+.attempt:first-of-type{ border-top:0 }
+.attempt__no{
+  font-family:var(--mono); font-size:9px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.attempt__verdict{ font-size:12.5px; line-height:1.9; color:var(--ink-2); align-self:center }
+.attempt__verdict b{ font-family:var(--mono); font-weight:400; font-size:11.5px; color:var(--cobalt) }
+.attempt.is-rejected .attempt__verdict b{ color:var(--cinnabar) }
+.attempt.is-rejected .byte{ opacity:.72 }
+.attempt__bytes{ display:flex; gap:7px; flex-wrap:wrap; align-items:flex-end }
+.attempt__row{ display:flex; gap:8px 18px; flex-wrap:wrap; align-items:flex-end }
+.sgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(44px,1fr)); gap:4px; max-width:640px }
+.sbyte{
+  padding:5px 2px 4px; text-align:center;
+  font-family:var(--mono); font-size:10px; color:var(--ink);
+  background:linear-gradient(180deg,#FFFFFF,#EDF3F0);
+  box-shadow:inset 0 0 0 .5px rgba(35,71,127,.18);
+}
+.sbyte.is-edge{ color:var(--cinnabar); box-shadow:inset 0 0 0 .5px rgba(172,56,42,.42) }
+.sbyte i{ display:block; font-style:normal; font-size:7.5px; color:var(--ink-3); margin-bottom:2px }
+@media (width <= 860px){
+  .attempt{ grid-template-columns:minmax(0,1fr); gap:4px }
+}
+</style>
+</head>
+<body data-page="demo">
+
+<div class="rail">
+  <div class="rail__in">
+    <div class="rail__brand">
+      <b>moonseed</b><span class="mono"><span id="rev-head">0.1.3</span> &nbsp;·&nbsp; Apache-2.0</span>
+    </div>
+    <nav class="rail__nav">
+      <a href="index.html">home</a>
+      <a href="guide.html">guide</a>
+      <a href="api.html">api</a>
+      <a href="sampling.html" aria-current="page">demo</a>
+      <a href="https://github.com/moonbitstack/moonseed" rel="noopener">github<span class="rail__out" aria-hidden="true">↗</span></a>
+    </nav>
+  </div>
+</div>
+
+<header class="dochead">
+  <div class="sheet">
+    <p class="dochead__eyebrow mono">moonbitstack / moonseed · the bench</p>
+    <h1 class="dochead__title">The draw</h1>
+    <p class="dochead__lede">
+      Two panels, both running this library compiled to wasm. The page gathers the bytes and
+      lays the result out; every number it shows was computed inside that module — the mask,
+      the comparisons and the value itself. Nothing here draws a number in JavaScript.
+    </p>
+    <div class="dochead__meta">
+      <span><b id="m-engine">wasm</b> engine</span>
+      <span><b id="m-pool">—</b> bytes in the pool</span>
+      <span><b id="m-draws">0</b> draws made</span>
+    </div>
+  </div>
+</header>
+
+<section class="sec" id="rejection">
+  <div class="sheet">
+    <div class="sec__head">
+      <div class="sec__plate">
+        <span class="sec__no">01</span>
+        <h2 class="sec__title">The rejection loop</h2>
+      </div>
+      <p class="sec__note">A draw at or above the bound is thrown away whole, and the next one is taken.</p>
+    </div>
+
+    <div class="two">
+      <div>
+        <p class="prose">
+          <code>below(bound)</code> reads the bound as a big-endian number and draws as many bytes
+          as <code>bound - 1</code> needs. The unused high bits of the first byte are cleared, and
+          the draw is turned into a number. If that number is below the bound it is the answer;
+          if it is not, the whole draw is discarded and another takes its place.
+        </p>
+        <p class="prose">
+          What comes back is as wide as the bound, so a bound of <code>b"\x03\xe8"</code> answers
+          with two bytes, not an <code>Int</code>. A bound that is a power of two never pays for
+          the loop: the mask already fits.
+        </p>
+        <p class="prose">
+          Below, the pool is filled once from the platform's own source, and every call starts at
+          its front — so pressing twice on the same bound shows the same draws twice.
+        </p>
+      </div>
+
+      <div class="pin">
+        <b>press draw</b><br>
+        Each attempt is one fill of the source. The masked byte is marked in red; the value it
+        forms is compared with the bound. The last attempt is the one the library returned.
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab__bar">
+        <label for="bound">bound</label>
+        <input id="bound" type="number" min="2" max="16777215" step="1" value="300" inputmode="numeric">
+        <button id="draw" type="button">draw</button>
+        <span class="tally">attempts <b id="m-attempts">0</b> · bytes <b id="m-bytes">0</b></span>
+      </div>
+      <div class="tray__row" id="chips">
+        <button class="lab__chip" type="button" data-bound="200">200</button>
+        <button class="lab__chip" type="button" data-bound="256">256</button>
+        <button class="lab__chip" type="button" data-bound="300">300</button>
+        <button class="lab__chip" type="button" data-bound="1000">1000</button>
+        <button class="lab__chip" type="button" data-bound="1300">1300</button>
+        <button class="lab__chip" type="button" data-bound="130000">130000</button>
+      </div>
+      <div id="attempts" style="margin-top:16px">
+        <p class="draw__note">No draw yet.</p>
+      </div>
+      <div class="tray">
+        <span class="draw__label">the library's answer</span>
+        <p class="draw__value" id="value">—</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="scalar">
+  <div class="sheet">
+    <div class="sec__head">
+      <div class="sec__plate">
+        <span class="sec__no">02</span>
+        <h2 class="sec__title">A scalar</h2>
+      </div>
+      <p class="sec__note">Sixty-six bytes for a P-521 key, with seven bits shifted out of every draw.</p>
+    </div>
+
+    <div class="two">
+      <div>
+        <p class="prose">
+          <code>scalar(order)</code> returns a value in [1, <code>order</code> - 1], as wide as the
+          order. The order of P-521 is 521 bits, which is 66 bytes with seven bits to spare: the
+          draw is shifted right by seven rather than masked, so a byte at the bottom becomes a
+          value in the low place, and the answer keeps the order's width.
+        </p>
+        <p class="prose">
+          The two red cells below are the only place a value can reach: the first byte's top seven
+          bits are clear, and the last byte holds what was shifted out.
+        </p>
+      </div>
+      <div class="pin">
+        <b>press draw</b><br>
+        One call to <code>scalar</code> over a fresh replay. A draw of zeros, or one at or above
+        the order, is discarded and taken again — the panel shows the answer, not the attempts.
+      </div>
+    </div>
+
+    <div class="lab">
+      <div class="lab__bar">
+        <label>order</label>
+        <span class="mono" style="letter-spacing:.04em">P-521 · 66 bytes · 521 bits</span>
+        <button id="scalar" type="button">draw a scalar</button>
+        <span class="tally">scalar <b id="m-scalar">—</b></span>
+      </div>
+      <div id="scalar-out" style="margin-top:16px">
+        <p class="draw__note">No scalar yet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="sheet foot__in">
+    <div><span class="mono">rev</span><b id="rev-value">0.1.3</b></div>
+    <div><span class="mono">licence</span><b>Apache-2.0</b></div>
+    <div><span class="mono">pages</span><b><a href="index.html">home</a> · <a href="guide.html">guide</a> · <a href="api.html">api</a> · <a href="sampling.html">demo</a></b></div>
+    <div class="foot__next"><span>the other layer · a seedable stream</span><span><a href="https://moonbitstack.github.io/moonrand/">moonrand · ChaCha12</a></span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  const POOL = 16384;
+  const pool = new Uint8Array(POOL);
+  let engine = null;
+  let draws = 0, attemptsTotal = 0, bytesTotal = 0;
+
+  const $ = (id) => document.getElementById(id);
+
+  function gather(){
+    if (window.crypto && crypto.getRandomValues){
+      for (let o = 0; o < POOL; o += 65536){
+        crypto.getRandomValues(pool.subarray(o, Math.min(o + 65536, POOL)));
+      }
+      return true;
+    }
+    return false;
+  }
+
+  function hex2(v){ return v.toString(16).padStart(2, "0"); }
+  function bits8(v){ return v.toString(2).padStart(8, "0"); }
+
+  /* 一个字节一格：原本的值，掩码之后的值，以及二进制 */
+  function byteChip(raw, masked, maskedBit, mask){
+    const el = document.createElement("span");
+    el.className = "byte" + (maskedBit ? " is-masked" : "");
+    el.innerHTML = "0x" + hex2(raw) +
+      '<span class="byte__bits">' +
+      (maskedBit ? "&amp; 0x" + hex2(mask) + " &rarr; 0x" + hex2(masked) : bits8(raw)) +
+      "</span>";
+    return el;
+  }
+
+  function showError(text){
+    $("attempts").innerHTML = '<p class="draw__note">' + text + "</p>";
+    $("value").textContent = "—";
+  }
+
+  function draw(){
+    if (!engine) return;
+    const bound = Number($("bound").value);
+    if (!Number.isInteger(bound) || bound < 2 || bound > 16777215){
+      showError("A bound the bench can draw: a whole number from 2 to 16777215.");
+      return;
+    }
+    if (!engine.trace(bound)){
+      showError("The pool has no bytes left. Reload the page for a fresh one.");
+      return;
+    }
+    const width = engine.trace_width();
+    const mask = engine.trace_mask();
+    const attempts = engine.trace_attempts();
+    const answer = engine.trace_value();
+
+    const host = $("attempts");
+    host.innerHTML = "";
+    let lastRead = null;
+    const shown = attempts <= 6 ? attempts : 4;
+    for (let a = 0; a < shown; a++){
+      const bytes = [];
+      for (let i = 0; i < width; i++) bytes.push(engine.trace_byte(a * width + i));
+      let value = 0;
+      for (let i = 0; i < width; i++){
+        const b = (i === 0) ? (bytes[i] & mask) : bytes[i];
+        value = value * 256 + b;
+      }
+      const accepted = (a === attempts - 1);
+
+      const row = document.createElement("div");
+      row.className = "attempt" + (accepted ? "" : " is-rejected");
+
+      const no = document.createElement("span");
+      no.className = "attempt__no";
+      no.textContent = "attempt " + (a + 1);
+      row.appendChild(no);
+
+      const box = document.createElement("div");
+      box.className = "attempt__row";
+      const line = document.createElement("div");
+      line.className = "attempt__bytes";
+      for (let i = 0; i < width; i++){
+        line.appendChild(byteChip(bytes[i], (i === 0) ? (bytes[i] & mask) : bytes[i], i === 0, mask));
+      }
+      box.appendChild(line);
+
+      const verdict = document.createElement("span");
+      verdict.className = "attempt__verdict";
+      verdict.innerHTML = "reads <b>" + value + "</b> " +
+        (accepted ? "&lt; " : "&ge; ") + bound +
+        (accepted ? " — the answer" : " — drawn again");
+      box.appendChild(verdict);
+      row.appendChild(box);
+      host.appendChild(row);
+      lastRead = value;
+    }
+    const agrees = (lastRead === answer);
+    if (attempts > shown){
+      const more = document.createElement("p");
+      more.className = "draw__note";
+      more.textContent = "and " + (attempts - shown) + " more attempts before the last one.";
+      host.appendChild(more);
+    }
+
+    const digits = width * 2;
+    $("value").textContent = "0x" + answer.toString(16).padStart(digits, "0") + "  = " + answer +
+      (agrees ? "  ·  the last attempt reads the same" : "  ·  the attempts do not add up");
+    $("value").className = "draw__value" + (agrees ? "" : " is-over");
+    draws += 1;
+    attemptsTotal += attempts;
+    bytesTotal += attempts * width;
+    $("m-attempts").textContent = String(attempts);
+    $("m-bytes").textContent = String(attempts * width);
+    $("m-draws").textContent = String(draws);
+  }
+
+  function drawScalar(){
+    if (!engine) return;
+    if (!engine.scalar_draw()){
+      $("scalar-out").innerHTML = '<p class="draw__note">The pool has no bytes left.</p>';
+      return;
+    }
+    const n = engine.scalar_len();
+    const grid = document.createElement("div");
+    grid.className = "sgrid";
+    let top = null, last = null;
+    for (let i = 0; i < n; i++){
+      const v = engine.scalar_byte(i);
+      if (i === 0) top = v;
+      if (i === n - 1) last = v;
+      const cell = document.createElement("span");
+      cell.className = "sbyte" + (i === 0 || i === n - 1 ? " is-edge" : "");
+      cell.innerHTML = "<i>" + String(i + 1).padStart(2, "0") + "</i>" + hex2(v);
+      grid.appendChild(cell);
+    }
+    $("scalar-out").innerHTML = "";
+    $("scalar-out").appendChild(grid);
+    const note = document.createElement("p");
+    note.className = "draw__note";
+    note.style.marginTop = "12px";
+    note.innerHTML = "First byte <b>" + hex2(top) + "</b>, last byte <b>" + hex2(last) +
+      "</b>. " + n + " bytes, the order's own width.";
+    $("scalar-out").appendChild(note);
+    $("m-scalar").textContent = n + " bytes";
+    draws += 1;
+    $("m-draws").textContent = String(draws);
+  }
+
+  async function boot(){
+    $("m-pool").textContent = POOL.toLocaleString("en-US");
+    if (!gather()){
+      $("m-engine").textContent = "no source";
+      showError("This browser has no crypto.getRandomValues, so the bench has no pool to draw from.");
+      return;
+    }
+    try {
+      const res = await fetch("engine/moonseed.wasm");
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const wasi = { wasi_snapshot_preview1: { fd_write: function(){ return 0; } } };
+      const mod = await WebAssembly.instantiate(new Uint8Array(await res.arrayBuffer()), wasi);
+      engine = mod.instance.exports;
+      engine._start();
+      engine.reset();
+      for (let i = 0; i < POOL; i++) engine.push(pool[i]);
+      engine.open();
+      $("m-engine").textContent = "wasm";
+    } catch (err){
+      $("m-engine").textContent = "not built";
+      $("draw").disabled = true;
+      $("scalar").disabled = true;
+      showError("The engine is not here: docs/engine/moonseed.wasm is built by the docs workflow, not committed. Run the build in .github/workflows/docs.yml to use the bench.");
+      $("scalar-out").innerHTML = '<p class="draw__note">Nothing to draw from without the engine.</p>';
+      console.warn("moonseed.wasm unavailable:", err);
+      return;
+    }
+    $("draw").addEventListener("click", draw);
+    $("scalar").addEventListener("click", drawScalar);
+    $("chips").addEventListener("click", function(e){
+      const chip = e.target.closest(".lab__chip");
+      if (!chip) return;
+      $("bound").value = chip.getAttribute("data-bound");
+      draw();
+    });
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
