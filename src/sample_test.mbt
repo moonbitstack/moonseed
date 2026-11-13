@@ -206,3 +206,21 @@ test "below a whole byte masks nothing" {
     assert_eq(source.remaining(), 0)
   }
 }
+
+///|
+/// P-521's order is 521 bits, seven short of the sixty-six bytes it occupies, so
+/// the extra-bits draw shifts the whole number right: the bit at the top of the
+/// first byte lands in the second. Clearing the spare bits of the first byte
+/// instead would keep it there, and the two readings disagree on exactly this
+/// case. This library follows the shift.
+test "a P-521 draw is shifted, not masked" {
+  let order = b"\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfa\x51\x86\x87\x83\xbf\x2f\x96\x6b\x7f\xcc\x01\x48\xf7\x09\xa5\xd0\x3b\xb5\xc9\xb8\x89\x9c\x47\xae\xbb\x6f\xb7\x1e\x91\x38\x64\x09"
+  let draw = FixedArray::make(66, b'\x00')
+  draw[0] = b'\x01'
+  let got = @moonseed.scalar(
+    order,
+    @moonseed.Replay::new(Bytes::from_array(draw)),
+  )
+  assert_eq(got.length(), 66)
+  assert_eq((got[0], got[1], got[65]), (b'\x00', b'\x02', b'\x00'))
+}
