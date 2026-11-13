@@ -12,7 +12,25 @@ pub fn push(Int32) -> Unit
 
 pub fn reset() -> Unit
 
+pub fn scalar_byte(Int32) -> Int32
+
+pub fn scalar_draw() -> Int32
+
+pub fn scalar_len() -> Int32
+
 pub fn taken() -> Int32
+
+pub fn trace(Int32) -> Int32
+
+pub fn trace_attempts() -> Int32
+
+pub fn trace_byte(Int32) -> Int32
+
+pub fn trace_mask() -> Int32
+
+pub fn trace_value() -> Int32
+
+pub fn trace_width() -> Int32
 
 pub fn unit() -> Double
 

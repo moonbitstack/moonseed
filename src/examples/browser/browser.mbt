@@ -144,6 +144,102 @@ fn bound_value(b : Bytes) -> Int32 {
 }
 
 ///|
+/// What one call to `below` did, for the bench: the bound, the width it drew,
+/// the mask it applied, how many attempts it took, and the value it returned.
+/// Every number here comes from the call; the page only lays them out.
+let trace_state : Array[Int32] = [0, 0, 0, 0, 0]
+
+///|
+/// The bytes the call consumed, in the order the replay gave them.
+let trace_bytes : Array[Int32] = []
+
+///|
+/// The order of the P-521 group: sixty-six bytes, 521 bits, seven spare.
+let p521_order : Bytes = b"\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfa\x51\x86\x87\x83\xbf\x2f\x96\x6b\x7f\xcc\x01\x48\xf7\x09\xa5\xd0\x3b\xb5\xc9\xb8\x89\x9c\x47\xae\xbb\x6f\xb7\x1e\x91\x38\x64\x09"
+
+///|
+let scalar_bytes : Array[Int32] = []
+
+///|
+/// Run one `below` over a fresh replay and keep what it did. Returns 1 when
+/// it returned a number, 0 when the pool had no bytes left to give.
+pub fn trace(bound : Int32) -> Int32 {
+  trace_bytes.clear()
+  if bound < 2 {
+    return 0
+  }
+  let digits = bound - 1
+  let bits = 32 - digits.clz()
+  let width = (bits + 7) / 8
+  trace_state[0] = bound
+  trace_state[1] = width
+  trace_state[2] = (1 << (if bits % 8 == 0 { 8 } else { bits % 8 })) - 1
+  let src = replay()
+  let before = src.remaining()
+  let got = @moonseed.below(bound_bytes(bound)[:], src) catch { _ => return 0 }
+  let consumed = before - src.remaining()
+  trace_state[3] = consumed / width
+  trace_state[4] = bound_value(got)
+  for i in 0..<consumed {
+    trace_bytes.push(pool[i].to_int())
+  }
+  1
+}
+
+///|
+pub fn trace_width() -> Int32 {
+  trace_state[1]
+}
+
+///|
+pub fn trace_mask() -> Int32 {
+  trace_state[2]
+}
+
+///|
+pub fn trace_attempts() -> Int32 {
+  trace_state[3]
+}
+
+///|
+pub fn trace_value() -> Int32 {
+  trace_state[4]
+}
+
+///|
+pub fn trace_byte(i : Int32) -> Int32 {
+  if i < 0 || i >= trace_bytes.length() {
+    return -1
+  }
+  trace_bytes[i]
+}
+
+///|
+/// Draw one P-521 scalar from a fresh replay. Returns 1 when one came back.
+pub fn scalar_draw() -> Int32 {
+  scalar_bytes.clear()
+  let src = replay()
+  let got = @moonseed.scalar(p521_order[:], src) catch { _ => return 0 }
+  for b in got {
+    scalar_bytes.push(b.to_int())
+  }
+  1
+}
+
+///|
+pub fn scalar_len() -> Int32 {
+  scalar_bytes.length()
+}
+
+///|
+pub fn scalar_byte(i : Int32) -> Int32 {
+  if i < 0 || i >= scalar_bytes.length() {
+    return -1
+  }
+  scalar_bytes[i]
+}
+
+///|
 fn main {
   ignore(unit)
 }
