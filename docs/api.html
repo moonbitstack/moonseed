@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Every public item of moonseed: secure bytes, unbiased sampling, and the sources they draw from.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23A9C9BB'/%3E%3Cpath d='M3 11.5 L12.5 15 L10.5 27' fill='none' stroke='%2323477F' stroke-width='1.3'/%3E%3Cpath d='M12.5 15 L28 9.5' fill='none' stroke='%2323477F' stroke-width='1.3'/%3E%3Cpath d='M12.5 15 L21.5 22.5' fill='none' stroke='%2323477F' stroke-width='1.3'/%3E%3Crect x='24' y='23' width='6' height='6' fill='%23AC382A'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/glaze.css">
+<link rel="stylesheet" href="assets/docs.css">
+<title>moonseed — the API, item by item</title>
+</head>
+<body data-page="api">
+
+<div class="rail">
+  <div class="rail__in">
+    <div class="rail__brand">
+      <b>moonseed</b><span class="mono"><span id="rev-head">0.1.3</span> &nbsp;·&nbsp; Apache-2.0</span>
+    </div>
+    <nav class="rail__nav">
+      <a href="index.html">home</a>
+      <a href="guide.html">guide</a>
+      <a href="api.html" aria-current="page">api</a>
+      <a href="sampling.html">demo</a>
+      <a href="https://github.com/moonbitstack/moonseed" rel="noopener">github<span class="rail__out" aria-hidden="true">↗</span></a>
+    </nav>
+  </div>
+</div>
+
+<header class="dochead">
+  <div class="sheet">
+    <p class="dochead__eyebrow mono">moonbitstack / moonseed · reference</p>
+    <h1 class="dochead__title">API</h1>
+    <p class="dochead__lede">
+      Every public item of both packages: the signature the source declares, and the note
+      beside it. The list of items is the compiler's interfaces; the prose is the source's
+      own comments, so this page cannot describe an API the library does not have.
+    </p>
+    <div class="dochead__meta">
+      <span><b>13</b> public items</span>
+      <span><b>2</b> packages</span>
+      <span><b>0.1.3</b> rev</span>
+    </div>
+    <p class="dochead__jump"><a href="#moonseed">moonbitstack/moonseed</a> · <a href="#system">moonbitstack/moonseed/system</a> · <a href="guide.html">the guide</a></p>
+  </div>
+</header>
+
+<section class="sec" id="moonseed">
+  <div class="sheet">
+    <div class="sec__head">
+      <div class="sec__plate">
+        <span class="sec__no">01</span>
+        <h2 class="sec__title sec__title--pkg">moonbitstack/moonseed</h2>
+      </div>
+      <p class="sec__note">3 functions · 1 error · 1 type · 1 trait</p>
+    </div>
+      <h3 class="ref__grp">Functions<i>3</i></h3>
+      <article class="item" id="below">
+        <header class="item__head">
+          <span class="item__kind">function</span><h4 class="item__name">below</h4><a class="item__anchor" href="#below" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub fn[S : Source] below(bound : BytesView, source : S) -&gt; Bytes raise Unavailable</pre>
+        <div class="item__doc">
+        <p>A uniform number in [0, <code>bound</code>), big-endian and as wide as <code>bound</code>.</p>
+        <p>Draws as many bytes as <code>bound - 1</code> needs, clears the unused high bits of the first, and draws again while the value is at or above <code>bound</code>. Rejection rather than modulo: reducing a wider draw modulo <code>bound</code> would favour the small values. A <code>bound</code> of 1 reads nothing. Aborts when <code>bound</code> is zero.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\x17\x90"</span>)
+  assert_eq(@moonseed.below(<span class="s">b"\x03\xe8"</span>, source), <span class="s">b"\x03\x90"</span>)
+}</pre></div>
+        </div>
+      </article>
+      <article class="item" id="bytes">
+        <header class="item__head">
+          <span class="item__kind">function</span><h4 class="item__name">bytes</h4><a class="item__anchor" href="#bytes" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub fn[S : Source] bytes(n : Int32, source : S) -&gt; Bytes raise Unavailable</pre>
+        <div class="item__doc">
+        <p><code>n</code> uniform random bytes, no more and no fewer.</p>
+        <p>Aborts on a negative <code>n</code>: that is a mistake in the caller, and handing back an empty buffer would hide it.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\x01\x02\x03"</span>)
+  assert_eq(@moonseed.bytes(2, source), <span class="s">b"\x01\x02"</span>)
+}</pre></div>
+        </div>
+      </article>
+      <article class="item" id="scalar">
+        <header class="item__head">
+          <span class="item__kind">function</span><h4 class="item__name">scalar</h4><a class="item__anchor" href="#scalar" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub fn[S : Source] scalar(order : BytesView, source : S) -&gt; Bytes raise Unavailable</pre>
+        <div class="item__doc">
+        <p>A uniform number in [1, <code>order</code> - 1], as wide as <code>order</code>: the private key or nonce of a group of that order.</p>
+        <p>Draws as FIPS 186-5 A.2.2 says: the leftmost bits of a draw as long as <code>order</code>, drawn again while the value is zero or at or above <code>order</code>. A P-521 scalar is 66 bytes with its top bits clear, which is why this cannot be "ask for 32 bytes". Aborts when <code>order</code> is below 2.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\xc0\x80"</span>)
+  assert_eq(@moonseed.scalar(<span class="s">b"\x05"</span>, source), <span class="s">b"\x04"</span>)
+}</pre></div>
+        </div>
+      </article>
+      <h3 class="ref__grp">Types<i>1</i></h3>
+      <article class="item" id="Replay">
+        <header class="item__head">
+          <span class="item__kind">type</span><h4 class="item__name">Replay</h4><a class="item__anchor" href="#Replay" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub struct Replay</pre>
+        <div class="item__doc">
+        <p>A source that hands out the bytes it was given, in order, and is exhausted after.</p>
+        <p>Built from bytes alone, so a draw can be pinned to a fixed sequence without a platform in sight: the fixed randomness of a test vector, or a test that walks every branch of a rejection loop.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\x0a"</span>)
+  <span class="k">let</span> buf = FixedArray::make(1, b'\x00')
+  source.fill(buf)
+  assert_eq(buf, [b'\x0a'])
+}</pre></div>
+        </div>
+      </article>
+      <article class="item item--nested" id="Replay.fill">
+        <header class="item__head">
+          <span class="item__kind">method</span><h4 class="item__name">Replay::fill</h4><a class="item__anchor" href="#Replay.fill" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub fn Replay::fill(self : Replay, buf : FixedArray[Byte]) -&gt; Unit raise Unavailable</pre>
+        <div class="item__doc">
+        <p>Copy the next bytes of the replay into <code>buf</code>.</p>
+        <p>It refuses whole: when fewer bytes remain than <code>buf</code> wants, nothing is copied, <code>remaining()</code> is unchanged, and <code>Exhausted</code> is raised. A half-filled buffer is the kind of thing a caller forgets to check.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\x07\x08"</span>)
+  <span class="k">let</span> buf = FixedArray::make(2, b'\x00')
+  source.fill(buf)
+  assert_eq(buf, [b'\x07', b'\x08'])
+  assert_eq(source.remaining(), 0)
+}</pre></div>
+        </div>
+      </article>
+      <article class="item item--nested" id="Replay.new">
+        <header class="item__head">
+          <span class="item__kind">method</span><h4 class="item__name">Replay::new</h4><a class="item__anchor" href="#Replay.new" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub fn Replay::new(data : Bytes) -&gt; Replay</pre>
+        <div class="item__doc">
+        <p>Build a source from the bytes a draw should see, in order.</p>
+        <p>The bytes are held as given; nothing is copied twice, and nothing is generated when they run out.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\x01\x02"</span>)
+  assert_eq(source.remaining(), 2)
+}</pre></div>
+        </div>
+      </article>
+      <article class="item item--nested" id="Replay.remaining">
+        <header class="item__head">
+          <span class="item__kind">method</span><h4 class="item__name">Replay::remaining</h4><a class="item__anchor" href="#Replay.remaining" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub fn Replay::remaining(self : Replay) -&gt; Int32</pre>
+        <div class="item__doc">
+        <p>How many bytes are left to give.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\x0a\x0b"</span>)
+  <span class="k">let</span> buf = FixedArray::make(1, b'\x00')
+  source.fill(buf)
+  assert_eq(source.remaining(), 1)
+}</pre></div>
+        </div>
+      </article>
+      <h3 class="ref__grp">Errors<i>1</i></h3>
+      <article class="item" id="Unavailable">
+        <header class="item__head">
+          <span class="item__kind">error</span><h4 class="item__name">Unavailable</h4><a class="item__anchor" href="#Unavailable" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub(all) suberror Unavailable {
+  Platform
+  Exhausted
+  Failed(String)
+}</pre>
+        <div class="item__doc">
+        <p>No random bytes could be had. There is no fallback to a seeded generator: a caller that needs entropy and gets none stops here.</p>
+        <p>The three cases are told apart because they call for different answers: a platform without a source cannot be retried, a spent replay is a mistake in the test, and a failed source names its own reason.</p>
+        <dl class="vars">
+          <dt><code>Platform</code></dt><dd>The platform has no entropy source, or its source failed.</dd>
+          <dt><code>Exhausted</code></dt><dd>A <code>Replay</code> source has given all the bytes it holds.</dd>
+          <dt><code>Failed(String)</code></dt><dd>A source of the program's own failed, for the reason given.</dd>
+        </dl>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> spent = <span class="k">try</span> {
+    ignore(@moonseed.bytes(1, @moonseed.Replay::new(<span class="s">b""</span>)))
+    None
+  } <span class="k">catch</span> {
+    e =&gt; Some(e)
+  }
+  assert_eq(spent, Some(@moonseed.Unavailable::Exhausted))
+  assert_eq(
+    @moonseed.Unavailable::Failed(<span class="s">"no entropy left"</span>).to_string(),
+    <span class="s">"no entropy left"</span>,
+  )
+}</pre></div>
+        </div>
+      </article>
+      <h3 class="ref__grp">Traits<i>1</i></h3>
+      <article class="item" id="Source">
+        <header class="item__head">
+          <span class="item__kind">trait</span><h4 class="item__name">Source</h4><a class="item__anchor" href="#Source" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub(open) trait Source</pre>
+        <div class="item__doc">
+        <p>Where the bytes come from.</p>
+        <p>Open, so a program can plug in a hardware source, a service, or a fixed sequence in a test, and this library needs to know about none of them. The platform's own source is <code>@system.source</code>.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\x2a\x2b"</span>)
+  <span class="k">let</span> buf = FixedArray::make(2, b'\x00')
+  source.fill(buf)
+  assert_eq(buf, [b'\x2a', b'\x2b'])
+}</pre></div>
+        </div>
+      </article>
+      <article class="item item--nested" id="Source.fill">
+        <header class="item__head">
+          <span class="item__kind">method</span><h4 class="item__name">Source::fill</h4><a class="item__anchor" href="#Source.fill" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">fn fill(Self, FixedArray[Byte]) -&gt; Unit raise Unavailable</pre>
+        <div class="item__doc">
+        <p>Fill all of <code>buf</code>, or raise. A source that fills part of it and returns has broken the contract: the caller has no way to tell how much is real.</p>
+        </div>
+      </article>
+  </div>
+</section>
+
+<section class="sec" id="system">
+  <div class="sheet">
+    <div class="sec__head">
+      <div class="sec__plate">
+        <span class="sec__no">02</span>
+        <h2 class="sec__title sec__title--pkg">moonbitstack/moonseed/system</h2>
+      </div>
+      <p class="sec__note">1 value · 1 type</p>
+    </div>
+      <h3 class="ref__grp">Types<i>1</i></h3>
+      <article class="item" id="System">
+        <header class="item__head">
+          <span class="item__kind">type</span><h4 class="item__name">System</h4><a class="item__anchor" href="#System" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub struct System</pre>
+        <div class="item__doc">
+        <p>The platform's entropy source. It holds nothing; every <code>fill</code> asks the platform again.</p>
+        <p>Holding nothing is the point: a cached buffer is a copy of the platform's secret that this library would then be responsible for wiping, and a stale one after a fork or a resume.</p>
+        </div>
+      </article>
+      <article class="item item--nested" id="System.fill">
+        <header class="item__head">
+          <span class="item__kind">method</span><h4 class="item__name">System::fill</h4><a class="item__anchor" href="#System.fill" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub fn System::fill(self : System, buf : FixedArray[Byte]) -&gt; Unit raise Unavailable</pre>
+        <div class="item__doc">
+        <p>Fails with <code>Platform</code> when the platform has no source or reports a failure, and never falls back to anything else.</p>
+        <p>A host without entropy is a host whose secrets cannot be guessed only by accident; inventing bytes for it would turn that into a silent weakness.</p>
+        </div>
+      </article>
+      <h3 class="ref__grp">Values<i>1</i></h3>
+      <article class="item" id="source">
+        <header class="item__head">
+          <span class="item__kind">value</span><h4 class="item__name">source</h4><a class="item__anchor" href="#source" aria-label="link to this item">#</a>
+        </header>
+        <pre class="code item__sig">pub let source : System</pre>
+        <div class="item__doc">
+        <p>The one value there is a need for.</p>
+        <div class="eg"><span class="eg__tag">runs in the tests</span><pre class="code eg__code"><span class="k">test</span> {
+  <span class="c">// Nothing to construct and nothing to close: the value carries no state,</span>
+  <span class="c">// and each fill asks the platform again.</span>
+  ignore(@system.source)
+}</pre></div>
+        </div>
+      </article>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="sheet foot__in">
+    <div><span class="mono">rev</span><b id="rev-value">0.1.3</b></div>
+    <div><span class="mono">licence</span><b>Apache-2.0</b></div>
+    <div><span class="mono">pages</span><b><a href="index.html">home</a> · <a href="guide.html">guide</a> · <a href="api.html">api</a> · <a href="sampling.html">demo</a></b></div>
+    <div class="foot__next"><span>the other layer · a seedable stream</span><span><a href="https://moonbitstack.github.io/moonrand/">moonrand · ChaCha12</a></span></div>
+  </div>
+</footer>
+
+</body>
+</html>
