@@ -10,6 +10,7 @@
 <title>moonseed — the draw, step by step</title>
 <style>
 /* 这一页独有的：一次尝试一格，字节按位排开 */
+.attempts{ margin-top:16px }
 .attempt{
   display:grid; grid-template-columns:96px minmax(0,1fr); gap:6px 18px;
   align-items:baseline; padding:12px 0 13px;
@@ -125,10 +126,10 @@
         <button class="lab__chip" type="button" data-bound="1300">1300</button>
         <button class="lab__chip" type="button" data-bound="130000">130000</button>
       </div>
-      <div id="attempts" style="margin-top:16px">
-        <p class="draw__note">No draw yet.</p>
+      <div id="attempts" class="attempts">
+        <p class="draw__note">The tray is empty. Press draw to fill it with the bytes of one call.</p>
       </div>
-      <div class="tray">
+      <div class="tray" id="answer" hidden>
         <span class="draw__label">the library's answer</span>
         <p class="draw__value" id="value">—</p>
       </div>
@@ -214,12 +215,14 @@
   function bits8(v){ return v.toString(2).padStart(8, "0"); }
 
   /* 一个字节一格：原本的值，掩码之后的值，以及二进制 */
+  /* A masked byte shows what the number carries, with the draw it came from
+     underneath: 0x01, read out of 0xe6 & 0x01. */
   function byteChip(raw, masked, maskedBit, mask){
     const el = document.createElement("span");
     el.className = "byte" + (maskedBit ? " is-masked" : "");
-    el.innerHTML = "0x" + hex2(raw) +
+    el.innerHTML = "0x" + hex2(maskedBit ? masked : raw) +
       '<span class="byte__bits">' +
-      (maskedBit ? "&amp; 0x" + hex2(mask) + " &rarr; 0x" + hex2(masked) : bits8(raw)) +
+      (maskedBit ? "0x" + hex2(raw) + " &amp; 0x" + hex2(mask) : bits8(raw)) +
       "</span>";
     return el;
   }
@@ -295,6 +298,7 @@
     }
 
     const digits = width * 2;
+    $("answer").hidden = false;
     $("value").textContent = "0x" + answer.toString(16).padStart(digits, "0") + "  = " + answer +
       (agrees ? "  ·  the last attempt reads the same" : "  ·  the attempts do not add up");
     $("value").className = "draw__value" + (agrees ? "" : " is-over");

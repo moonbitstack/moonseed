@@ -30,7 +30,7 @@
   <div class="sheet">
     <p class="dochead__eyebrow mono">moonbitstack / moonseed · guide</p>
     <h1 class="dochead__title">Guide</h1>
-    <p class="dochead__lede">From an empty package to a key, a range and a scalar. Seven steps, each with the code that</p>
+    <p class="dochead__lede">From an empty package to a key, a range and a scalar. Seven steps, each with the code that runs and the value it produces.</p>
     <p class="dochead__jump"><a href="#install">01 Install</a> · <a href="#first-bytes">02 First bytes</a> · <a href="#a-number-in-a-range">03 A number in a range</a> · <a href="#a-scalar">04 A scalar</a> · <a href="#a-source-of-your-own">05 A source of your own</a> · <a href="#when-there-are-no-bytes">06 When there are no bytes</a> · <a href="#where-it-stops">07 Where it stops</a> · <a href="api.html">the reference</a></p>
   </div>
 </header>
@@ -111,7 +111,7 @@
 }</pre>
         <div class="out"><span class="out__tag">what it prints</span>b"\x03\x90"</div>
 <pre class="code guide__code"><span class="k">test</span> <span class="s">"a draw at or above the bound is thrown away"</span> {
-  <span class="c">// 1000 needs ten bits, so 0xffff is cut to 0x03ff: still 1023, so it is drawn again.</span>
+  <span class="c">// 1000 needs ten bits, so 0xffff is cut to 0x03ff: 1023, still too big.</span>
   <span class="k">let</span> source = @moonseed.Replay::new(<span class="s">b"\xff\xff\x03\xe7"</span>)
   assert_eq(@moonseed.below(<span class="s">b"\x03\xe8"</span>, source), <span class="s">b"\x03\xe7"</span>)
   assert_eq(source.remaining(), 0)

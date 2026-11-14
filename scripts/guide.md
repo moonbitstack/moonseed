@@ -67,7 +67,7 @@ b"\x03\x90"
 
 ```mbt
 test "a draw at or above the bound is thrown away" {
-  // 1000 needs ten bits, so 0xffff is cut to 0x03ff: still 1023, so it is drawn again.
+  // 1000 needs ten bits, so 0xffff is cut to 0x03ff: 1023, still too big.
   let source = @moonseed.Replay::new(b"\xff\xff\x03\xe7")
   assert_eq(@moonseed.below(b"\x03\xe8", source), b"\x03\xe7")
   assert_eq(source.remaining(), 0)

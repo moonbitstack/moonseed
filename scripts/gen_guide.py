@@ -52,7 +52,14 @@ def blocks(text: str) -> list[dict]:
         if line.startswith("# "):
             out.append({"t": "title", "text": line[2:].strip()})
         elif line.startswith("> "):
-            out.append({"t": "lede", "text": line[2:].strip()})
+            # A lede may run over several lines; they are one paragraph.
+            lede = [line[2:].strip()]
+            i += 1
+            while i < len(lines) and lines[i].startswith("> "):
+                lede.append(lines[i][2:].strip())
+                i += 1
+            out.append({"t": "lede", "text": " ".join(lede)})
+            continue
         elif line.startswith("## "):
             head = line[3:].strip()
             note = ""

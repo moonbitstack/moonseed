@@ -228,21 +228,29 @@ def package_html(pkg: str, items: list[mbti.Item], number: str) -> str:
     note = " · ".join(
         f"{n} {COUNT_WORD[k][1] if n > 1 else COUNT_WORD[k][0]}" for k, n in counts.items()
     )
-    blocks = []
+    entries: list[tuple[mbti.Item, bool]] = []
+    blocks: list[str] = []
     for kind, member in groups(items):
         rows = []
         for item in member:
+            entries.append((item, False))
             rows.append(item_html(item))
             if item.kind in ("type", "trait"):
                 for child in sorted(
                     (i for i in items if i.target == item.key and i.key != item.key),
                     key=lambda i: i.key,
                 ):
+                    entries.append((child, True))
                     rows.append(item_html(child, nested=True))
         blocks.append(
             f'      <h3 class="ref__grp">{GROUP_TITLE[kind]}'
             f'<i>{len(member)}</i></h3>\n' + "\n".join(rows)
         )
+    index = "\n".join(
+        f'        <a class="{"is-child" if nested else "is-top"}" '
+        f'href="#{item.key.replace("::", ".")}">{render.esc(item.key)}</a>'
+        for item, nested in entries
+    )
     return f"""<section class="sec" id="{pkg.split('/')[-1]}">
   <div class="sheet">
     <div class="sec__head">
@@ -252,7 +260,14 @@ def package_html(pkg: str, items: list[mbti.Item], number: str) -> str:
       </div>
       <p class="sec__note">{note}</p>
     </div>
+    <div class="ref">
+      <nav class="ref__index" aria-label="{render.attr(pkg)} items">
+{index}
+      </nav>
+      <div class="ref__body">
 {chr(10).join(blocks)}
+      </div>
+    </div>
   </div>
 </section>"""
 

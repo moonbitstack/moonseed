@@ -37,7 +37,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{ overflow-x:hidden; max-width:100% }
+html,body{ overflow-x:clip; max-width:100% }
 html, button, input, textarea, select{ font-variant-ligatures:no-contextual }
 
 body{
@@ -388,6 +388,8 @@ body[data-lang="zh"] .sec__no{
 body[data-lang="zh"] .prose{ text-indent:2em }
 body[data-lang="zh"] .prose em{ text-indent:0 }
 
+.sec__note a{ color:var(--cobalt); text-decoration:none; border-bottom:.5px solid var(--line) }
+.sec__note a:hover{ border-color:var(--cobalt) }
 .sec__note{
   margin-left:auto; max-width:26em;
   font-size:12px; line-height:1.95; color:var(--ink-3); text-align:right;
@@ -763,13 +765,17 @@ body[data-lang="zh"] .shard__key em{
 
 @media (max-width:980px){
   /* 窄屏：题后仍有回纹，故注记另起一行，不压在纹上 */
-  body[data-lang="zh"] .sec__note{ flex:1 1 100%; margin-left:0; text-align:left; max-width:100% }
+  body[data-lang="zh"] .sec__note a{ color:var(--cobalt); text-decoration:none; border-bottom:.5px solid var(--line) }
+.sec__note a:hover{ border-color:var(--cobalt) }
+.sec__note{ flex:1 1 100%; margin-left:0; text-align:left; max-width:100% }
   .hero__in{ grid-template-columns:1fr; gap:44px }
   .stage{ align-items:flex-start }
   .two{ grid-template-columns:minmax(0,1fr); gap:34px }
   .cols{ grid-template-columns:1fr; gap:28px }
   .sec__head{ flex-wrap:wrap; gap:10px }
-  .sec__note{ margin-left:0; text-align:left; max-width:100% }
+  .sec__note a{ color:var(--cobalt); text-decoration:none; border-bottom:.5px solid var(--line) }
+.sec__note a:hover{ border-color:var(--cobalt) }
+.sec__note{ margin-left:0; text-align:left; max-width:100% }
 }
 @media (max-width:760px){
   .sheet, .rail__in{ padding:0 20px }
@@ -782,6 +788,10 @@ body[data-lang="zh"] .shard__key em{
   .lang{ margin-left:0; padding-left:10px }
   .lang button{ padding:0 3px; font-size:9px; letter-spacing:.06em }
   .hero{ padding-top:36px }
+  /* 三枚按钮在窄屏并排放得下：字距与内边距同时收 */
+  .btn{ padding:11px 13px; font-size:9px; letter-spacing:.14em; white-space:nowrap; gap:7px }
+  .btn i{ width:10px }
+  body[data-lang="zh"] .btn{ font-size:11px; letter-spacing:.16em }
   .gtile{ width:min(84vw,320px); height:min(84vw,320px) }
   .stage__cap{ grid-template-columns:1fr 1fr }
   .face--celadon, .face--mica, .face--cobalt{ padding:24px 20px 26px }

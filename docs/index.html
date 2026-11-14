@@ -184,9 +184,8 @@
         </p>
         <p class="prose" data-zh="&lt;em&gt;scalar(order)&lt;/em&gt; 给出 [1, order) 里的一个数，用来当私钥或 nonce。抽取的宽度和 order 一样，遇到零或不小于 order 就重抽，做法照 FIPS 186-5 A.2.2。P-521 的标量是 66 字节且高位清零，所以不能写成「取 32 字节」。">
           <em>scalar(order)</em> gives you something in [1, order) — a private key, a nonce. Draw as
-          wide as order, draw again while the value is zero or not below order: FIPS 186-5 A.2.2,
-          the same draw Go's ECDSA makes. A P-521 scalar is 66 bytes with the top bits clear, which
-          is why this cannot be "ask for 32 bytes".
+          wide as order, draw again while the value is zero or not below order: FIPS 186-5 A.2.2, the extra-bits draw. A P-521 scalar is 66 bytes with the top bits
+          clear, which is why this cannot be "ask for 32 bytes".
         </p>
         <p class="prose" data-zh="两者的读法都用固定的字节流核过：同一串字节，别家实现读出的值与本库相同，而且每一字节都用上了。">
           Both read-outs are pinned to fixed byte streams: the same bytes, read by an independent
@@ -198,7 +197,7 @@
         <div class="code"><span class="c" data-zh="// bound 取 1000：十位，抽两个字节，前六位清掉">// bound 1000: ten bits, so two bytes with six bits cleared</span>
 <span class="k">test</span> <span class="s">"the first draw is too big"</span> {
   <span class="k">let</span> source = <span class="k">@moonseed</span>.Replay::new(<span class="s">b"\xff\xff\x03\xe7"</span>)
-  <span class="c" data-zh="// 0xffff 清成 0x03ff，仍是 1023，不小于 1000，重抽">// 0xffff becomes 0x03ff — 1023, still at or above 1000, so drawn again</span>
+  <span class="c" data-zh="// 0xffff 清成 0x03ff，仍是 1023，重抽">// 0xffff becomes 0x03ff — 1023, still too big</span>
   assert_eq(<span class="k">@moonseed</span>.below(<span class="s">b"\x03\xe8"</span>, source), <span class="s">b"\x03\xe7"</span>)
 }</div>
 
@@ -243,13 +242,8 @@
         <span class="sec__no" data-zh="肆">04</span>
         <h2 class="sec__title" data-zh="接口">API</h2>
       </div>
-      <p class="sec__note" data-zh="全部公开项，按包列出，一项不少。">Every public item, package by package. Nothing left out.</p>
+      <p class="sec__note" data-zh="全部公开项，按包列出。每一项的全文与例子在 &lt;a href=&quot;api.html&quot;&gt;参考页&lt;/a&gt;。">Every public item, package by package. The full note and an example beside each one are in <a href="api.html">the reference</a>.</p>
     </div>
-
-    <p class="aside-note" data-zh="接口表是摘要；每一项的全文、参数与例子在 &lt;a href=&quot;api.html&quot;&gt;参考页&lt;/a&gt;。">
-      This table is the summary. Each item's full note and its example are in
-      <a href="api.html">the reference</a>.
-    </p>
 
     <div class="face face--cobalt">
       <span class="face__tag">cobalt · marking</span>
